@@ -63,20 +63,21 @@ layout = html.Div([
     )
 def display_(radio_value,days_prev):
 
-    df_copy=df[df["product_type"]==radio_value].drop("product_type",1)
+    df_copys=df[df["product_type"]==radio_value].drop("product_type",1)
     
     if days_prev=='30':
-        df_copy=df_copy[df_copy["less_than_30"]==1].\
+        df_copy=df_copys[df_copys["less_than_30"]==1].\
             drop(["less_than_30","less_than_60","less_than_90"],1).drop_duplicates(subset=["Date"])
     elif days_prev=='60':
-            df_copy=df_copy[df_copy["less_than_60"]==1].\
+            df_copy=df_copys[df_copys["less_than_60"]==1].\
                 drop(["less_than_30","less_than_60","less_than_90"],1).drop_duplicates(subset=["Date"])
                 
     elif days_prev=='90':
-            df_copy=df_copy[df_copy["less_than_90"]==1].\
+            df_copy=df_copys[df_copys["less_than_90"]==1].\
                 drop(["less_than_30","less_than_60","less_than_90"],1).drop_duplicates(subset=["Date"])
                 
     else:
+            df_copy=df_copys.copy()       
             df_copy=df_copy.drop(["less_than_30","less_than_60","less_than_90"],1).drop_duplicates(subset=["Date"])
             
     

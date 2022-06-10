@@ -72,10 +72,10 @@ layout = html.Div([
     )
 def display_(radio_value,days_prev):
 
-    df_copy=df[df["product_type"]==radio_value].drop("product_type",1)
+    df_copys=df[df["product_type"]==radio_value].drop("product_type",1)
     
     if days_prev=='30':
-        df_copy=df_copy[df_copy["less_than_30"]==1]
+        df_copy=df_copys[df_copys["less_than_30"]==1]
         df_copy["sum_qty"]=df_copy.groupby(['CustomerID'])['quantity'].transform(lambda x:x.sum())
         df_copy["avg_product_per_customer"]=df_copy.groupby(['CustomerID'])['sum_qty'].\
             transform(lambda x:x.mean())
@@ -83,20 +83,21 @@ def display_(radio_value,days_prev):
             
 
     elif days_prev=='60':
-        df_copy=df_copy[df_copy["less_than_60"]==1]
+        df_copy=df_copys[df_copys["less_than_60"]==1]
         df_copy["sum_qty"]=df_copy.groupby(['CustomerID'])['quantity'].transform(lambda x:x.sum())
         df_copy["avg_product_per_customer"]=df_copy.groupby(['CustomerID'])['sum_qty'].\
             transform(lambda x:x.mean())
         df_copy=df_copy.drop_duplicates(subset=["CustomerID"])
          
     elif days_prev=='90':
-        df_copy=df_copy[df_copy["less_than_90"]==1]
+        df_copy=df_copys[df_copys["less_than_90"]==1]
         df_copy["sum_qty"]=df_copy.groupby(['CustomerID'])['quantity'].transform(lambda x:x.sum())
         df_copy["avg_product_per_customer"]=df_copy.groupby(['CustomerID'])['sum_qty'].\
             transform(lambda x:x.mean())
         df_copy=df_copy.drop_duplicates(subset=["CustomerID"])
          
     else:
+        df_copy=df_copys.copy()
         df_copy["sum_qty"]=df_copy.groupby(['CustomerID'])['quantity'].transform(lambda x:x.sum())
         df_copy["avg_product_per_customer"]=df_copy.groupby(['CustomerID'])['sum_qty'].\
             transform(lambda x:x.mean())

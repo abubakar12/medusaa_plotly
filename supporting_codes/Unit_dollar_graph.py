@@ -48,14 +48,14 @@ layout = html.Div([
     html.Br(),
     html.H1("prod_type"),
     dcc.RadioItems(
-        id='prod_type',
+        id='prod_type6',
         options=df["product_type"].unique(),
         value=df["product_type"].unique()[-1]
     ),
     html.Br(),
     html.H1("Days_prev"),
     dcc.RadioItems(
-        id='days_prev',
+        id='days_prev6',
         options=['30','60','90','ALL'],
         value='ALL'
     ),
@@ -66,15 +66,16 @@ layout = html.Div([
 
 @callback(
     Output("graph6", "figure"), 
-    Input("prod_type", "value"),
-    Input("days_prev","value"),
+    Input("prod_type6", "value"),
+    Input("days_prev6","value"),
     )
 def display_(radio_value,days_prev):
 
-    df_copy=df[df["product_type"]==radio_value].drop("product_type",1)
+    df_copys=df[df["product_type"]==radio_value].drop("product_type",1)
     
     if days_prev=='30':
-        df_copy=df_copy[df_copy["less_than_30"]==1]
+        df_copy=df_copys[df_copys["less_than_30"]==1]
+        df_copy["sum_qty"]=df_copy.groupby(['Date'])['quantity'].transform(lambda x:x.sum())
         df_copy["sum_qty"]=df_copy.groupby(['Date'])['quantity'].transform(lambda x:x.sum())
         df_copy=df_copy.drop_duplicates(subset=["Date"])
         
@@ -83,7 +84,8 @@ def display_(radio_value,days_prev):
             
 
     elif days_prev=='60':
-        df_copy=df_copy[df_copy["less_than_60"]==1]
+        df_copy=df_copys[df_copys["less_than_60"]==1]
+        df_copy["sum_qty"]=df_copy.groupby(['Date'])['quantity'].transform(lambda x:x.sum())
         df_copy["avg_product_per_customer"]=df_copy.groupby(['Date'])['sum_qty'].\
             transform(lambda x:x.mean())
         df_copy=df_copy.drop_duplicates(subset=["Date"])
@@ -94,7 +96,8 @@ def display_(radio_value,days_prev):
         
          
     elif days_prev=='90':
-        df_copy=df_copy[df_copy["less_than_90"]==1]
+        df_copy=df_copys[df_copys["less_than_90"]==1]
+        df_copy["sum_qty"]=df_copy.groupby(['Date'])['quantity'].transform(lambda x:x.sum())
         df_copy["avg_product_per_customer"]=df_copy.groupby(['Date'])['sum_qty'].\
             transform(lambda x:x.mean())
         df_copy=df_copy.drop_duplicates(subset=["Date"])
@@ -105,6 +108,7 @@ def display_(radio_value,days_prev):
         
          
     else:
+        df_copy=df_copys.copy()
         df_copy["sum_qty"]=df_copy.groupby(['Date'])['quantity'].transform(lambda x:x.sum())
         df_copy=df_copy.drop_duplicates(subset=["Date"])    
         
