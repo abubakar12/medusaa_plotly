@@ -64,10 +64,10 @@ df=pd.merge(df,new_customers_tot,on=["Date"],how="left")
 
 
 
-app = Dash(__name__, suppress_callback_exceptions=True)
-server = app.server
+# app = Dash(__name__, suppress_callback_exceptions=True)
+# server = app.server
     
-app.layout = html.Div([
+layout = html.Div([
     html.Br(),
     html.H1("prod_type"),
     dcc.RadioItems(
@@ -83,12 +83,12 @@ app.layout = html.Div([
         value='ALL'
     ),
     
-    dcc.Graph(id="graph")
+    dcc.Graph(id="graph10")
 
 ])
 
-@app.callback(
-    Output("graph", "figure"), 
+@callback(
+    Output("graph10", "figure"), 
     Input("prod_type", "value"),
     Input("days_prev","value"),
     )
@@ -111,11 +111,9 @@ def display_(radio_value,days_prev):
             df_copy=df_copy.drop(["less_than_30","less_than_60","less_than_90"],1).drop_duplicates(subset=["Date"])
             
     
-    fig = px.bar(df_copy, y="total_customers", x="Date")
+    fig = px.bar(df_copy, y="total_customers", x="Date",template="plotly_dark")
 
     
     return fig
 
 
-if __name__ == '__main__':
-    app.run_server(debug=False,port=3003)

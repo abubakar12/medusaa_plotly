@@ -43,10 +43,10 @@ df[df["less_than_90"]==1]
 
 
 
-app = Dash(__name__, suppress_callback_exceptions=True)
-server = app.server
+# app = Dash(__name__, suppress_callback_exceptions=True)
+# server = app.server
     
-app.layout = html.Div([
+layout = html.Div([
     html.Br(),
     html.H1("prod_type"),
     dcc.RadioItems(
@@ -62,16 +62,16 @@ app.layout = html.Div([
         value='ALL'
     ),
     html.H1("Moving Avg FIlter Window"),
-    dcc.Slider(0, 60, 1,
-               value=10,
+    dcc.Slider(0, 10, 1,
+               value=0,
                id='mov_avg_filt'),
     
-    dcc.Graph(id="graph")
+    dcc.Graph(id="graph7")
 
 ])
 
-@app.callback(
-    Output("graph", "figure"), 
+@callback(
+    Output("graph7", "figure"), 
     Input("prod_type", "value"),
     Input("days_prev","value"),
     Input("mov_avg_filt","value"),
@@ -119,38 +119,42 @@ def display_(radio_value,days_prev,roll):
         df_copy=df_copy.drop_duplicates(subset=["Date"])
         
     
-    df_copy=df_copy.set_index("Date")
+
         
-    data=[]
+    # data=[]
 
-    data1 = {
-        'x': df_copy.index,
-        'y': df_copy['count_orders'],
-        'mode': 'lines',
-        'marker': {'color': '#0074D9'},
-        'name': 'count_orders'
-    }
-    data.append(data1)
+    # data1 = {
+    #     'x': df_copy.index,
+    #     'y': df_copy['count_orders'],
+    #     'mode': 'lines',
+    #     'marker': {'color': '#0074D9'},
+    #     'name': 'count_orders',
+    #     'plot_bgcolor': 'plotly_dark'
+    # }
+    # data.append(data1)
 
-    data2 = {
-        'x': df_copy.index,
-        'y': df_copy['MAF'],
-        'mode': 'lines',
-        'marker': {'color': '#FF4136'},
-        'name': 'MAF'
-    }
-    data.append(data2)
-
+    # data2 = {
+    #     'x': df_copy.index,
+    #     'y': df_copy['MAF'],
+    #     'mode': 'lines',
+    #     'marker': {'color': '#FF4136'},
+    #     'name': 'MAF',
+    #     'plot_bgcolor': 'plotly_dark'
+    # }
+    # data.append(data2)
     
-    
-    return {
-        'data': data,
-        'layout': {
-            # 'uirevision': dataset,
-    
-            'legend': {'x': 0, 'y': 1}
-        }
-    }
+    melted_df=df_copy.melt(id_vars=['Date'],value_vars=["count_orders",'MAF'],var_name='variables',value_name='plot_values').\
+        reset_index()
 
-if __name__ == '__main__':
-    app.run_server(debug=False,port=3003)
+    fig = px.line(melted_df, y=melted_df["plot_values"], x=melted_df["Date"],template="plotly_dark", color='variables')
+    return fig
+    # return {
+    #     'data': data,
+    #     'layout': {
+    #         # 'uirevision': dataset,
+    
+    #         'legend': {'x': 0, 'y': 1}
+    #     }
+    # }
+
+

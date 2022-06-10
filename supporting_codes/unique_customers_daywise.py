@@ -34,10 +34,9 @@ df.loc[df["Date"]>=pd.to_datetime(less_than_90),"less_than_90"]=1
 
 
 
-app = Dash(__name__, suppress_callback_exceptions=True)
-server = app.server
+
     
-app.layout = html.Div([
+layout = html.Div([
     html.Br(),
     html.H1("prod_type"),
     dcc.RadioItems(
@@ -53,12 +52,12 @@ app.layout = html.Div([
         value='ALL'
     ),
     
-    dcc.Graph(id="graph")
+    dcc.Graph(id="graph5")
 
 ])
 
-@app.callback(
-    Output("graph", "figure"), 
+@callback(
+    Output("graph5", "figure"), 
     Input("prod_type", "value"),
     Input("days_prev","value"),
     )
@@ -81,11 +80,10 @@ def display_(radio_value,days_prev):
             df_copy=df_copy.drop(["less_than_30","less_than_60","less_than_90"],1).drop_duplicates(subset=["Date"])
             
     
-    fig = px.bar(df_copy, y="unique_customer", x="Date")
+    fig = px.bar(df_copy, y="unique_customer", x="Date",template="plotly_dark")
 
     
     return fig
 
 
-if __name__ == '__main__':
-    app.run_server(debug=False,port=3003)
+

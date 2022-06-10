@@ -12,7 +12,7 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import plotly.io as pio
 pio.renderers.default='browser'
-
+from supporting_codes import layout_configs as lc
 
 
 df = tableau_file.copy()  # iris is a pandas DataFrame
@@ -21,30 +21,31 @@ df=df.groupby(["product_type","product_id"])['quantity']\
 
 df["product_type"]=df["product_type"].astype(str)
 df["product_id"]=df["product_id"].astype(str)
-app = Dash(__name__, suppress_callback_exceptions=True)
-server = app.server
+
     
-app.layout = html.Div([
+layout = html.Div([
     # html.H4('Naive Cost'),
+    html.Br(),
+    html.H1("Product Sales in Category"),
     html.Button("Toggle sort",id="toggle_sort",n_clicks=0),
     dcc.RadioItems(
         id='radio',
         options=df["product_type"].unique(),
         value=df["product_type"].unique()[0]
     ),
-    dcc.Graph(id="graph")
+    dcc.Graph(id="graph3",config=lc.tool_config)
 
 ])
 
-@app.callback(
-    Output("graph", "figure"), 
+@callback(
+    Output("graph3", "figure"), 
     Input("radio", "value"),
     Input("toggle_sort","n_clicks"),
     )
 def display_(radio_value,toggle):
 
     df_copy=df[df["product_type"]==radio_value].drop("product_type",1)
-    fig = px.bar(df_copy, y="product_id", x="quantity",orientation='h')
+    fig = px.bar(df_copy, y="product_id", x="quantity",orientation='h',template="plotly_dark")
     if toggle%2==0:
         fig=fig.update_layout(yaxis={'categoryorder':'total ascending'})   
     else:
@@ -54,5 +55,5 @@ def display_(radio_value,toggle):
     return fig
 
 
-if __name__ == '__main__':
-    app.run_server(debug=False,port=3003)
+# if __name__ == '__main__':
+#     app.run_server(debug=False,port=3003)
