@@ -2,17 +2,18 @@ import dash
 import pandas as pd
 from dash import html
 from dash import dcc
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output,State
 import dash_bootstrap_components as dbc
-from datetime import date
-from supporting_codes import Average_selling_price
-from supporting_codes import Count_and_MAF
-from supporting_codes import new_customers_daywise
-from supporting_codes import products_per_unq_customers
-from supporting_codes import unique_customers_daywise
-from supporting_codes import Unit_dollar_graph
-from supporting_codes import product_sales
-from supporting_codes import layout_configs as lc
+# from datetime import date
+# from supporting_codes import Average_selling_price
+# from supporting_codes import Count_and_MAF
+# from supporting_codes import new_customers_daywise
+# from supporting_codes import products_per_unq_customers
+# from supporting_codes import unique_customers_daywise
+# from supporting_codes import Unit_dollar_graph
+# from supporting_codes import product_sales
+# from supporting_codes import layout_configs as lc
+from supporting_codes import call_backs_all
 import plotly.io as pio
 plotly_template = pio.templates["plotly_dark"]
 plotly_template.layout
@@ -39,64 +40,52 @@ DROPDOWN_STYLE = {"textAlign": "left"}
 # Content
 #############################################################################
 # Create drop-down selector and initial date picker
-
-
-tableau_file=pd.read_csv(r"C:\Users\hp\Desktop\medusaa_plotly\sample_data.csv")
-df = tableau_file.copy()  # iris is a pandas DataFrame
-df["product_type"]=df["product_type"].astype(str)
-df["CustomerID"]=df["CustomerID"].astype(str)
-df=df[["Date",'Year','Month',"Day",'CustomerID','product_type','quantity','amount','sku']]
-
-df["Date"]=pd.to_datetime(df["Date"],format="%Y-%m-%d")
-df["revenue"]=df.groupby(['Date','product_type'])['amount'].\
-            transform(lambda x:x.sum())
-df["total_products"]=df.groupby(['Date','product_type'])['sku'].\
-            transform(lambda x:x.nunique())
-            
-total_revenue=df[["Date","revenue","total_products"]].drop_duplicates(["Date"])
+# arrays=call_backs_all.array
+# revenue,tot_products,unique_skus=arrays.value
 # Info Bar
-info_bar = html.Div(
-        dbc.Row(
-            [
-                dbc.Col(
-                    dbc.Alert(
-                        [
-                            html.H6("Total Revenue : "),
-                            html.H6(total_revenue.revenue.sum()),
-                        ],
-                        color="light",
-                    ),
-                    md=2,
-                ),
-                dbc.Col(
-                    dbc.Alert(
-                        [
-                            html.H6("TOtal products sold: "),
-                            html.H6(total_revenue.total_products.sum()),
-                        ],
-                        color="success",
-                    ),
-                    md=2,
-                ),
-                # dbc.Col(
-                #     dbc.Alert(
-                #         [
-                #             html.H6("Most Recent Data: "),
-                #             html.H6(df2.report_data),
-                #         ],
-                #         color="primary",
-                #     ),
-                #     md=2,
-                # ),
-            ]
-        )
-)
+info_bar=call_backs_all.info_bars
+# info_bar = html.Div(
+#         dbc.Row(
+#             [
+#                 dbc.Col(
+#                     dbc.Alert(
+#                         [
+#                             html.H6("Total Revenue : "),
+#                             html.H6(call_backs_all.array.children[0].data[0]),
+#                         ],
+#                         color="light",
+#                     ),
+#                     md=2,
+#                 ),
+#                 dbc.Col(
+#                     dbc.Alert(
+#                         [
+#                             html.H6("TOtal products sold: "),
+#                             html.H6(call_backs_all.array.children[0].data[1]),
+#                         ],
+#                         color="success",
+#                     ),
+#                     md=2,
+#                 ),
+#                 dbc.Col(
+#                     dbc.Alert(
+#                         [
+#                             html.H6("Unique Skus Sold: "),
+#                             html.H6(call_backs_all.array.children[0].data[2]),
+#                         ],
+#                         color="success",
+#                     ),
+#                     md=2,
+#                 ),
+#             ]
+#         )
+# )
 
 # # Container for raw data charts
 basic_data = dbc.Row(
     [
         dbc.Col(
-            Average_selling_price.layout,
+            call_backs_all.layout1,
             
             md=12,
         ),
@@ -107,11 +96,11 @@ basic_data = dbc.Row(
 baseline_data = dbc.Row(
     [
         dbc.Col(
-            Count_and_MAF.layout,
+            call_backs_all.layout2,
             md=6,
         ),
         dbc.Col(
-            product_sales.layout,
+            call_backs_all.layout7,
             md=6,
         ),
     ]
@@ -121,11 +110,11 @@ baseline_data = dbc.Row(
 category_data = dbc.Row(
     [
         dbc.Col(
-            new_customers_daywise.layout,
+            call_backs_all.layout6,
             md=6,
         ),
         dbc.Col(
-            products_per_unq_customers.layout,
+            call_backs_all.layout3,
             md=6,
         ),
     ]
@@ -134,11 +123,11 @@ category_data = dbc.Row(
 category_data2 = dbc.Row(
     [
         dbc.Col(
-            unique_customers_daywise.layout,
+            call_backs_all.layout5,
             md=6,
         ),
         dbc.Col(
-            Unit_dollar_graph.layout,
+            call_backs_all.layout4,
             md=6,
         ),
     ]
@@ -205,5 +194,5 @@ def display_page(pathname):
 if __name__ == "__main__":
 
     app.run_server(
-   debug=True,port=3004
+   debug=True,port=3204
       )

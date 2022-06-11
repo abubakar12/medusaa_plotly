@@ -118,44 +118,12 @@ def display_(radio_value,days_prev,roll):
         df_copy["MAF"]=df_copy.groupby(['Date'])['count_orders'].\
                 transform(lambda x:x.rolling(window=roll).mean())
         df_copy=df_copy.drop_duplicates(subset=["Date"])
-        
-    
 
-        
-    # data=[]
-
-    # data1 = {
-    #     'x': df_copy.index,
-    #     'y': df_copy['count_orders'],
-    #     'mode': 'lines',
-    #     'marker': {'color': '#0074D9'},
-    #     'name': 'count_orders',
-    #     'plot_bgcolor': 'plotly_dark'
-    # }
-    # data.append(data1)
-
-    # data2 = {
-    #     'x': df_copy.index,
-    #     'y': df_copy['MAF'],
-    #     'mode': 'lines',
-    #     'marker': {'color': '#FF4136'},
-    #     'name': 'MAF',
-    #     'plot_bgcolor': 'plotly_dark'
-    # }
-    # data.append(data2)
     
     melted_df=df_copy.melt(id_vars=['Date'],value_vars=["count_orders",'MAF'],var_name='variables',value_name='plot_values').\
         reset_index()
 
     fig = px.line(melted_df, y=melted_df["plot_values"], x=melted_df["Date"],template="plotly_dark", color='variables')
     return fig
-    # return {
-    #     'data': data,
-    #     'layout': {
-    #         # 'uirevision': dataset,
-    
-    #         'legend': {'x': 0, 'y': 1}
-    #     }
-    # }
 
 
