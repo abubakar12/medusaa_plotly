@@ -43,43 +43,10 @@ DROPDOWN_STYLE = {"textAlign": "left"}
 # arrays=call_backs_all.array
 # revenue,tot_products,unique_skus=arrays.value
 # Info Bar
-info_bar=call_backs_all.info_bars
-# info_bar = html.Div(
-#         dbc.Row(
-#             [
-#                 dbc.Col(
-#                     dbc.Alert(
-#                         [
-#                             html.H6("Total Revenue : "),
-#                             html.H6(call_backs_all.array.children[0].data[0]),
-#                         ],
-#                         color="light",
-#                     ),
-#                     md=2,
-#                 ),
-#                 dbc.Col(
-#                     dbc.Alert(
-#                         [
-#                             html.H6("TOtal products sold: "),
-#                             html.H6(call_backs_all.array.children[0].data[1]),
-#                         ],
-#                         color="success",
-#                     ),
-#                     md=2,
-#                 ),
-#                 dbc.Col(
-#                     dbc.Alert(
-#                         [
-#                             html.H6("Unique Skus Sold: "),
-#                             html.H6(call_backs_all.array.children[0].data[2]),
-#                         ],
-#                         color="success",
-#                     ),
-#                     md=2,
-#                 ),
-#             ]
-#         )
-# )
+# info_bar=call_backs_all.info_bars
+
+
+filter_bar = call_backs_all.option_selected
 
 # # Container for raw data charts
 basic_data = dbc.Row(
@@ -140,20 +107,23 @@ category_data2 = dbc.Row(
 ####################################################
 # Layout Creation Section
 ####################################################
-main_page = html.Div(
+main_page = dbc.Container(
     [
         html.Hr(),
         html.H4("Medusa Product Table", style=TEXT_STYLE),
+        # html.Hr(),
+        # html.Hr(),
+        # info_bar,
         html.Hr(),
-        # report_select,
+        html.H4("Options Selected ", style=TEXT_STYLE),
         html.Hr(),
-        info_bar,
+        filter_bar,
         html.Hr(),
         basic_data,
         html.Hr(),
         baseline_data,
         html.Hr(),
-        html.H5("Comparison of Data in Broad Category", style=TEXT_STYLE),
+        # html.H5("Comparison of Data in Broad Category", style=TEXT_STYLE),
         html.Hr(),
         category_data,
         html.Hr(),
@@ -194,5 +164,5 @@ def display_page(pathname):
 if __name__ == "__main__":
 
     app.run_server(
-   debug=True,port=3204
+   debug=True,port=4104
       )

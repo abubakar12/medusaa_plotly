@@ -59,13 +59,10 @@ df.loc[df["Date"]>=pd.to_datetime(less_than_90),"less_than_90"]=1
 df[df["less_than_90"]==1]
 
 dfu=df.copy()
-###############################################################################################################
-#Revenue dialog box
-            
-total_revenue=df.\
-    drop_duplicates(["product_type","Date",'sku'])
 
-info_bars = html.Div(
+###########################################################################################
+#Gather all call backs
+option_selected = dbc.Container([
         dbc.Row(
             [
                 dbc.Col(
@@ -98,9 +95,91 @@ info_bars = html.Div(
                     ),
                     md=2,
                 ),
+        
+                dbc.Col(
+                    html.Div([
+                    html.H6("prod_type"),
+                    dcc.Dropdown(
+                    id='prod_type',
+                    options=df["product_type"].unique(),
+                    value=df["product_type"].unique()[-1]),
+                    # md=2,
+                    ]),md=2,
+                ),
+                dbc.Col(
+                    html.Div([
+                        html.H6("Days_prev"),
+                        dcc.Dropdown(
+                            id='days_prev',
+                            options=['30','60','90','ALL'],
+                            value='ALL'
+                        ),
+                    # md=2,
+                    ]),md=2,
+                ),
+                dbc.Col(
+                    html.Div([
+                    html.H5(id="selected"),
+                    # md=2,
+                    ]),md=2,width=True,
+                ),
             ]
         )
+        ],fluid=True,
 )
+
+
+@callback(
+    Output("selected", "children"), 
+    Input("prod_type", "value"),
+    Input("days_prev","value"),
+    )
+def revenue_tots(radio_value,days_prev):
+
+    output="Product Type : {} -- Days Previous : {}".format(radio_value,days_prev)
+    return output
+###############################################################################################################
+#Revenue dialog box
+            
+total_revenue=df.\
+    drop_duplicates(["product_type","Date",'sku'])
+
+# info_bars = html.Div(
+#         dbc.Row(
+#             [
+#                 dbc.Col(
+#                     dbc.Alert(
+#                         [
+#                             html.H6("Total Revenue : "),
+#                             html.H6(id="tot_rev"),
+#                         ],
+#                         color="light",
+#                     ),
+#                     md=2,
+#                 ),
+#                 dbc.Col(
+#                     dbc.Alert(
+#                         [
+#                             html.H6("TOtal products sold: "),
+#                             html.H6(id="tot_prod"),
+#                         ],
+#                         color="success",
+#                     ),
+#                     md=2,
+#                 ),
+#                 dbc.Col(
+#                     dbc.Alert(
+#                         [
+#                             html.H6("Unique Skus Sold: "),
+#                             html.H6(id="unq_sku"),
+#                         ],
+#                         color="success",
+#                     ),
+#                     md=2,
+#                 ),
+#             ]
+#         )
+# )
 
 
 
@@ -245,23 +324,23 @@ dfp["product_type"]=dfp["product_type"].astype(str)
 dfp["product_id"]=dfp["product_id"].astype(str)
 dfp["quantity"]=dfp["quantity"].astype(int)
 layout7 = html.Div([
-    # html.H4('Naive Cost'),
+
+    # html.Br(),
+    # html.H1("prod_type"),
+    # dcc.RadioItems(
+    #     id='prod_type',
+    #     options=df["product_type"].unique(),
+    #     value=df["product_type"].unique()[-1]
+    # ),
+    # html.Br(),
+    # html.H1("Days_prev"),
+    # dcc.RadioItems(
+    #     id='days_prev',
+    #     options=['30','60','90','ALL'],
+    #     value='ALL'
+    # ),
     html.Br(),
-    html.H1("prod_type"),
-    dcc.RadioItems(
-        id='prod_type',
-        options=df["product_type"].unique(),
-        value=df["product_type"].unique()[-1]
-    ),
-    html.Br(),
-    html.H1("Days_prev"),
-    dcc.RadioItems(
-        id='days_prev',
-        options=['30','60','90','ALL'],
-        value='ALL'
-    ),
-    html.Br(),
-    html.H1("Product Sales in Category"),
+    html.H6("Product Sales in Category"),
     html.Button("Toggle sort",id="toggle_sort",n_clicks=0),
     html.Br(),
     dcc.Graph(id="graph7")
@@ -324,9 +403,10 @@ def new_customers(radio_value,days_prev):
             df_copy=df_copys.copy()
             df_copy=df_copy.drop(["less_than_30","less_than_60","less_than_90"],1).drop_duplicates(subset=["Date"])
             
-    
-    fig = px.bar(df_copy, y="total_customers", x="Date",title='new_customers')
-
+    try:
+        fig = px.bar(df_copy, y="total_customers", x="Date",title='new_customers')
+    except:
+        fig = px.bar(df_copy, y="total_customers", x="Date",title='new_customers')
     fig=fig.update_layout(template="plotly_dark")
     return fig
 
@@ -523,7 +603,7 @@ def products_per_unq_customers(radio_value,days_prev):
 #Count_and_MAF.py
 layout2 = html.Div([
     html.Br(),
-    html.H1("Moving Avg FIlter Window"),
+    html.H6("Moving Avg FIlter Window"),
     dcc.Slider(0, 10, 1,
                value=0,
                id='mov_avg_filt'),
