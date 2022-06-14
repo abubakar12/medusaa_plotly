@@ -43,8 +43,8 @@ df[df["less_than_90"]==1]
 
 
 
-# app = Dash(__name__, suppress_callback_exceptions=True)
-# server = app.server
+app = Dash(__name__, suppress_callback_exceptions=True)
+server = app.server
     
 layout = html.Div([
     html.Br(),
@@ -66,7 +66,7 @@ layout = html.Div([
 
 ])
 
-@callback(
+@app.callback(
     Output("graph1", "figure"), 
     Input("prod_type", "value"),
     Input("days_prev","value"),
@@ -110,4 +110,8 @@ def display_(radio_value,days_prev):
     
     return fig
 
+if __name__ == "__main__":
 
+    app.run_server(
+   debug=True,port=1200
+      )

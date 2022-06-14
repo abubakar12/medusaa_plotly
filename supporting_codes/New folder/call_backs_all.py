@@ -7,8 +7,8 @@ from plotly.subplots import make_subplots
 import plotly.io as pio
 pio.renderers.default='browser'
 from datetime import date, timedelta
-import datetime
 import dash_bootstrap_components as dbc
+
 tableau_file=pd.read_csv(r"C:\Users\hp\Desktop\medusaa_plotly\sample_data.csv",\
                          usecols=["Date",'Year','Month',"Day",'CustomerID','product_type','quantity','amount','price',"product_id",'sku'])
 max_date=pd.to_datetime("2-18-2022",format="%m-%d-%Y")
@@ -20,9 +20,45 @@ df = tableau_file.copy()  # iris is a pandas DataFrame
 df["product_type"]=df["product_type"].astype(str)
 df["CustomerID"]=df["CustomerID"].astype(str)
 
-
-
+df["Date"]=pd.to_datetime(df["Date"],format="%Y-%m-%d")
+############################################for New customer############################
+less_than_current_date=[]
+for datee in df["Date"].unique():
+    datee=pd.to_datetime(datee).strftime('%Y-%m-%d')
+    datee=pd.to_datetime(datee,format="%Y-%m-%d").date()
+    if (datee<=max_date):
+        less_than_current_date.append(datee)
         
+num_new_customers={}   
+new_customers=[]
+for datee in less_than_current_date:
+    print("date : {} ".format(str(datee)))
+    
+    customers=df[df["Date"]==np.datetime64(datee)]["CustomerID"].unique()
+    unique_customer_date=np.setdiff1d(customers,new_customers)
+    num_new_customers[str(datee)]=len(list(unique_customer_date))
+    new_customers=np.concatenate((new_customers, unique_customer_date), axis=None)
+    
+new_customers_tot=pd.DataFrame(num_new_customers.items(),columns=["Date","total_customers"])    
+new_customers_tot["Date"]=pd.to_datetime(new_customers_tot["Date"],format="%Y-%m-%d")
+
+
+df=pd.merge(df,new_customers_tot,on=["Date"],how="left")
+############################################for New customer############################
+
+less_than_30=d =max_date- timedelta(days=30)
+less_than_60=d =max_date- timedelta(days=60)
+less_than_90=d =max_date- timedelta(days=90)
+df["less_than_30"]=0
+df["less_than_60"]=0
+df["less_than_90"]=0
+df.loc[df["Date"]>=pd.to_datetime(less_than_30),"less_than_30"]=1
+df.loc[df["Date"]>=pd.to_datetime(less_than_60),"less_than_60"]=1
+df.loc[df["Date"]>=pd.to_datetime(less_than_90),"less_than_90"]=1
+
+df[df["less_than_90"]==1]
+
+dfu=df.copy()
 
 ###########################################################################################
 #Gather all call backs
@@ -37,7 +73,7 @@ option_selected = dbc.Container([
                         ],
                         color="light",
                     ),
-                  
+                    md=2,
                 ),
                 dbc.Col(
                     dbc.Alert(
@@ -47,7 +83,7 @@ option_selected = dbc.Container([
                         ],
                         color="success",
                     ),
-                 
+                    md=2,
                 ),
                 dbc.Col(
                     dbc.Alert(
@@ -57,7 +93,7 @@ option_selected = dbc.Container([
                         ],
                         color="success",
                     ),
-                    
+                    md=2,
                 ),
         
                 dbc.Col(
@@ -68,7 +104,7 @@ option_selected = dbc.Container([
                     options=df["product_type"].unique(),
                     value=df["product_type"].unique()[-1]),
                     # md=2,
-                    ]),
+                    ]),md=2,
                 ),
                 dbc.Col(
                     html.Div([
@@ -79,22 +115,13 @@ option_selected = dbc.Container([
                             value='ALL'
                         ),
                     # md=2,
-                    ]),
+                    ]),md=2,
                 ),
                 dbc.Col(
                     html.Div([
-                    html.H6(id="selected"),
+                    html.H5(id="selected"),
                     # md=2,
-                    ]),width=True,
-                ),
-                
-                dbc.Col(
-                    html.Div([
-                    html.H6(id="data_refresh"),
-                    dbc.Button("Refresh Data",id="refresh_button",n_clicks=0,color="primary"),
-                    dcc.Store(id='store-data', data=[1,2,3,4], storage_type='memory')
-                    # md=2,
-                    ]),width=True,
+                    ]),md=2,width=True,
                 ),
             ]
         )
@@ -105,105 +132,55 @@ option_selected = dbc.Container([
 @callback(
     Output("selected", "children"), 
     Input("prod_type", "value"),
-    Input("days_prev","value")
+    Input("days_prev","value"),
     )
 def revenue_tots(radio_value,days_prev):
 
-    
     output="Product Type : {} -- Days Previous : {}".format(radio_value,days_prev)
     return output
-
-######################################################################################################################
-# refresh_layout = html.Div([
-#     html.Br(),
-#     html.H6(id="data_refresh"),
-#     html.Button("Refresh Data",id="refresh_button",n_clicks=0),
-#     html.Br(),
-#     dcc.Store(id='store-data', data=[], storage_type='memory')
-# ])
-
-
-@callback(
-    Output("store-data", "data"), 
-    Output("data_refresh", "children"),
-    Input("refresh_button","n_clicks"),
-    )
-def data_refresh_code(refresh_button):
-
-    tableau_file=pd.read_csv(r"C:\Users\hp\Desktop\medusaa_plotly\sample_data.csv",\
-                             usecols=["Date",'Year','Month',"Day",'CustomerID','product_type','quantity','amount','price',"product_id",'sku'])
-    max_date=pd.to_datetime("2-18-2022",format="%m-%d-%Y")
-    max_date=pd.to_datetime(max_date).date()
-    # max_date=date.today()
-    
-    
-    df = tableau_file.copy()  # iris is a pandas DataFrame
-    df["product_type"]=df["product_type"].astype(str)
-    df["CustomerID"]=df["CustomerID"].astype(str)
-    
-    df["Date"]=pd.to_datetime(df["Date"],format="%Y-%m-%d")
-    ############################################for New customer############################
-    less_than_current_date=[]
-    for datee in df["Date"].unique():
-        datee=pd.to_datetime(datee).strftime('%Y-%m-%d')
-        datee=pd.to_datetime(datee,format="%Y-%m-%d").date()
-        if (datee<=max_date):
-            less_than_current_date.append(datee)
-            
-    num_new_customers={}   
-    new_customers=[]
-    for datee in less_than_current_date:
-        print("date : {} ".format(str(datee)))
-        
-        customers=df[df["Date"]==np.datetime64(datee)]["CustomerID"].unique()
-        unique_customer_date=np.setdiff1d(customers,new_customers)
-        num_new_customers[str(datee)]=len(list(unique_customer_date))
-        new_customers=np.concatenate((new_customers, unique_customer_date), axis=None)
-        
-    new_customers_tot=pd.DataFrame(num_new_customers.items(),columns=["Date","total_customers"])    
-    new_customers_tot["Date"]=pd.to_datetime(new_customers_tot["Date"],format="%Y-%m-%d")
-    
-    
-    df=pd.merge(df,new_customers_tot,on=["Date"],how="left")
-    ############################################for New customer############################
-    
-    less_than_30=max_date- timedelta(days=30)
-    less_than_60=max_date- timedelta(days=60)
-    less_than_90=max_date- timedelta(days=90)
-    df["less_than_30"]=0
-    df["less_than_60"]=0
-    df["less_than_90"]=0
-    df.loc[df["Date"]>=pd.to_datetime(less_than_30),"less_than_30"]=1
-    df.loc[df["Date"]>=pd.to_datetime(less_than_60),"less_than_60"]=1
-    df.loc[df["Date"]>=pd.to_datetime(less_than_90),"less_than_90"]=1
-    
-    df[df["less_than_90"]==1]#output
-    
-    dfu=df.copy()#output
-    
-        
-    dfp=df.copy()
-    dfp=dfp.groupby(["product_type","product_id"])['quantity']\
-        .sum().reset_index().drop_duplicates(subset=["product_type","product_id"]).sort_values(by="quantity",ascending=False)
-    dfp["product_type"]=dfp["product_type"].astype(str)
-    dfp["product_id"]=dfp["product_id"].astype(str)#output
-    dfp["quantity"]=dfp["quantity"].astype(int)
-    
-    
-    dfu["unique_customer"]=dfu.groupby(["Date",'product_type'])['CustomerID'].\
-            transform(lambda x:x.nunique())
-    dfu=dfu.drop_duplicates(subset=["Date",'product_type'])#output
-    df=df.to_dict('df')
-    dfu=dfu.to_dict('dfu')
-    dfp=dfp.to_dict('df')
-    
-    return [dfp,df,dfu],"Refreshed Date : {}".format(datetime.datetime.now().strftime('%y-%m-%d %a %H:%M:%S'))
-    
-
-       
 ###############################################################################################################
 #Revenue dialog box
             
+total_revenue=df.\
+    drop_duplicates(["product_type","Date",'sku'])
+
+# info_bars = html.Div(
+#         dbc.Row(
+#             [
+#                 dbc.Col(
+#                     dbc.Alert(
+#                         [
+#                             html.H6("Total Revenue : "),
+#                             html.H6(id="tot_rev"),
+#                         ],
+#                         color="light",
+#                     ),
+#                     md=2,
+#                 ),
+#                 dbc.Col(
+#                     dbc.Alert(
+#                         [
+#                             html.H6("TOtal products sold: "),
+#                             html.H6(id="tot_prod"),
+#                         ],
+#                         color="success",
+#                     ),
+#                     md=2,
+#                 ),
+#                 dbc.Col(
+#                     dbc.Alert(
+#                         [
+#                             html.H6("Unique Skus Sold: "),
+#                             html.H6(id="unq_sku"),
+#                         ],
+#                         color="success",
+#                     ),
+#                     md=2,
+#                 ),
+#             ]
+#         )
+# )
+
 
 
 
@@ -211,17 +188,9 @@ def data_refresh_code(refresh_button):
     Output("tot_rev", "children"), 
     Input("prod_type", "value"),
     Input("days_prev","value"),
-    Input('store-data', 'data'),
     )
-def revenue_tot(radio_value,days_prev,data):
-    
-    dfp,df,dfu=data
-    df = pd.DataFrame(df)
-    dfu = pd.DataFrame(dfu)
+def revenue_tot(radio_value,days_prev):
 
-    
-    total_revenue=df.\
-        drop_duplicates(["product_type","Date",'sku'])
     df_copys=total_revenue[total_revenue["product_type"]==radio_value]
     df_copys=df_copys[df_copys["quantity"]>0]
     
@@ -263,14 +232,9 @@ def revenue_tot(radio_value,days_prev,data):
     Output("tot_prod", "children"),
     Input("prod_type", "value"),
     Input("days_prev","value"),
-    Input('store-data', 'data'),
     )
-def tot_prod(radio_value,days_prev,data):
-    dfp,df,dfu=data
-    df = pd.DataFrame(df)
+def tot_prod(radio_value,days_prev):
 
-    total_revenue=df.\
-            drop_duplicates(["product_type","Date",'sku'])
     df_copys=total_revenue[total_revenue["product_type"]==radio_value]
     df_copys=df_copys[df_copys["quantity"]>0]
     
@@ -312,15 +276,9 @@ def tot_prod(radio_value,days_prev,data):
     Output("unq_sku", "children"),
     Input("prod_type", "value"),
     Input("days_prev","value"),
-    Input('store-data', 'data'),
     )
-def tot_unq_sku(radio_value,days_prev,data):
-    dfp,df,dfu=data
-    df = pd.DataFrame(df)
-    dfu = pd.DataFrame(dfu)
-    dfp=pd.DataFrame(dfp)
-    total_revenue=df.\
-            drop_duplicates(["product_type","Date",'sku'])
+def tot_unq_sku(radio_value,days_prev):
+
     df_copys=total_revenue[total_revenue["product_type"]==radio_value]
     df_copys=df_copys[df_copys["quantity"]>0]
     
@@ -359,9 +317,28 @@ def tot_unq_sku(radio_value,days_prev,data):
 
 ##############################################################################################
 #product_sales.py
-
+dfp=df.copy()
+dfp=dfp.groupby(["product_type","product_id"])['quantity']\
+    .sum().reset_index().drop_duplicates(subset=["product_type","product_id"]).sort_values(by="quantity",ascending=False)
+dfp["product_type"]=dfp["product_type"].astype(str)
+dfp["product_id"]=dfp["product_id"].astype(str)
+dfp["quantity"]=dfp["quantity"].astype(int)
 layout7 = html.Div([
 
+    # html.Br(),
+    # html.H1("prod_type"),
+    # dcc.RadioItems(
+    #     id='prod_type',
+    #     options=df["product_type"].unique(),
+    #     value=df["product_type"].unique()[-1]
+    # ),
+    # html.Br(),
+    # html.H1("Days_prev"),
+    # dcc.RadioItems(
+    #     id='days_prev',
+    #     options=['30','60','90','ALL'],
+    #     value='ALL'
+    # ),
     html.Br(),
     html.H6("Product Sales in Category"),
     html.Button("Toggle sort",id="toggle_sort",n_clicks=0),
@@ -374,14 +351,9 @@ layout7 = html.Div([
     Output("graph7", "figure"), 
     Input("prod_type", "value"),
     Input("days_prev","value"),
-    Input("toggle_sort","n_clicks"),  
-    Input('store-data', 'data'),
+    Input("toggle_sort","n_clicks"),   
     )
-def display_(radio_value,day_prev,toggle,data):
-    dfp,df,dfu=data
-    df = pd.DataFrame(df)
-    dfu = pd.DataFrame(dfu)
-    dfp = pd.DataFrame(dfp)
+def display_(radio_value,day_prev,toggle):
 
     df_copy=dfp[dfp["product_type"]==radio_value].drop("product_type",1)
     try:
@@ -411,14 +383,9 @@ layout6 = html.Div([
     Output("graph6", "figure"), 
     Input("prod_type", "value"),
     Input("days_prev","value"),
-    Input('store-data', 'data'),
     )
-def new_customers(radio_value,days_prev,data):
-    dfp,df,dfu=data
-    df = pd.DataFrame(df)
-    dfu = pd.DataFrame(dfu)
-    dfp = pd.DataFrame(dfp)
-    
+def new_customers(radio_value,days_prev):
+
     df_copys=df[df["product_type"]==radio_value].drop("product_type",1)
     
     if days_prev=='30':
@@ -446,7 +413,9 @@ def new_customers(radio_value,days_prev,data):
 
 ########################################################################################
 #unique_customers.py
-
+dfu["unique_customer"]=dfu.groupby(["Date",'product_type'])['CustomerID'].\
+        transform(lambda x:x.nunique())
+dfu=dfu.drop_duplicates(subset=["Date",'product_type'])
 
 layout5 = html.Div([
     html.Br(),
@@ -458,15 +427,9 @@ layout5 = html.Div([
     Output("graph5", "figure"), 
     Input("prod_type", "value"),
     Input("days_prev","value"),
-    Input('store-data', 'data'),
     )
-def unique_customers(radio_value,days_prev,data):
-    dfp,df,dfu=data
-    df = pd.DataFrame(df)
-    dfu = pd.DataFrame(dfu)
-    dfp = pd.DataFrame(dfp)
-    
-    
+def unique_customers(radio_value,days_prev):
+
     df_copys=dfu[dfu["product_type"]==radio_value].drop("product_type",1)
 
     
@@ -507,15 +470,9 @@ layout4 = html.Div([
     Output("graph4", "figure"), 
     Input("prod_type", "value"),
     Input("days_prev","value"),
-    Input('store-data', 'data'),
     )
-def unique_dollar_graph(radio_value,days_prev,data):
-    
-    dfp,df,dfu=data
-    df = pd.DataFrame(df)
-    dfu = pd.DataFrame(dfu)
-    dfp = pd.DataFrame(dfp)
-    
+def unique_dollar_graph(radio_value,days_prev):
+
     df_copys=df[df["product_type"]==radio_value].drop("product_type",1)
     
     if days_prev=='30':
@@ -603,14 +560,9 @@ layout3 = html.Div([
     Output("graph3", "figure"), 
     Input("prod_type", "value"),
     Input("days_prev","value"),
-    Input('store-data', 'data'),
     )
-def products_per_unq_customers(radio_value,days_prev,data):
-    dfp,df,dfu=data
-    df = pd.DataFrame(df)
-    dfu = pd.DataFrame(dfu)
-    dfp = pd.DataFrame(dfp)
-    
+def products_per_unq_customers(radio_value,days_prev):
+
     df_copys=df[df["product_type"]==radio_value].drop("product_type",1)
     
     if days_prev=='30':
@@ -665,14 +617,9 @@ layout2 = html.Div([
     Input("prod_type", "value"),
     Input("days_prev","value"),
     Input("mov_avg_filt","value"),
-    Input('store-data', 'data'),
     )
-def Loess(radio_value,days_prev,roll,data):
-    dfp,df,dfu=data
-    df = pd.DataFrame(df)
-    dfu = pd.DataFrame(dfu)
-    dfp = pd.DataFrame(dfp)
-    
+def Loess(radio_value,days_prev,roll):
+
     df_copys=df[df["product_type"]==radio_value].drop("product_type",1)
     
     if days_prev=='30':
@@ -738,14 +685,9 @@ layout1 = html.Div([
     Output("graph1", "figure"), 
     Input("prod_type", "value"),
     Input("days_prev","value"),
-    Input('store-data', 'data'),
     )
-def avg_selling_price(radio_value,days_prev,data):
-    dfp,df,dfu=data
-    df = pd.DataFrame(df)
-    dfu = pd.DataFrame(dfu)
-    dfp = pd.DataFrame(dfp)
-    
+def avg_selling_price(radio_value,days_prev):
+
     df_copys=df[df["product_type"]==radio_value]
     
     if days_prev=='30':

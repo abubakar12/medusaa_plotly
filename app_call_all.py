@@ -4,25 +4,11 @@ from dash import html
 from dash import dcc
 from dash.dependencies import Input, Output,State
 import dash_bootstrap_components as dbc
-# from datetime import date
-# from supporting_codes import Average_selling_price
-# from supporting_codes import Count_and_MAF
-# from supporting_codes import new_customers_daywise
-# from supporting_codes import products_per_unq_customers
-# from supporting_codes import unique_customers_daywise
-# from supporting_codes import Unit_dollar_graph
-# from supporting_codes import product_sales
-# from supporting_codes import layout_configs as lc
 from supporting_codes import call_backs_all
 import plotly.io as pio
 plotly_template = pio.templates["plotly_dark"]
 plotly_template.layout
-
-
-# ,\
-#     Count_and_MAF,new_customers_daywise,product_sales,products_per_unq_customers,\
-#         unique_customers_daywise,Unit_dollar_graph
-
+import time
 
 #############################################################################
 # Style modifications
@@ -40,10 +26,7 @@ DROPDOWN_STYLE = {"textAlign": "left"}
 # Content
 #############################################################################
 # Create drop-down selector and initial date picker
-# arrays=call_backs_all.array
-# revenue,tot_products,unique_skus=arrays.value
-# Info Bar
-# info_bar=call_backs_all.info_bars
+
 
 
 filter_bar = call_backs_all.option_selected
@@ -164,5 +147,5 @@ def display_page(pathname):
 if __name__ == "__main__":
 
     app.run_server(
-   debug=True,port=4104
+   debug=True,port=4004
       )
