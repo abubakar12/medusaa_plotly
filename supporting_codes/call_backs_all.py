@@ -225,7 +225,8 @@ def data_refresh_code(refresh_button,params,container):
     df.loc[df["Date"]>=pd.to_datetime(less_than_60),"less_than_60"]=1
     df.loc[df["Date"]>=pd.to_datetime(less_than_90),"less_than_90"]=1
     
-    df[df["less_than_90"]==1]#output
+    df["Date"]=df["Date"].dt.strftime('%d/%b/%y')#output
+    
     
     dfu=df.copy()#output
     
@@ -270,8 +271,7 @@ def revenue_tot(radio_value,days_prev,data):
     dfu = pd.DataFrame(dfu)
 
     
-    total_revenue=df.\
-        drop_duplicates(["product_type","Date",'sku'])
+    total_revenue=df.copy()
     df_copys=total_revenue[total_revenue["product_type"]==radio_value]
     df_copys=df_copys[df_copys["quantity"]>0]
     
@@ -319,8 +319,7 @@ def tot_prod(radio_value,days_prev,data):
     dfp,df,dfu=data
     df = pd.DataFrame(df)
 
-    total_revenue=df.\
-            drop_duplicates(["product_type","Date",'sku'])
+    total_revenue=df.copy()
     df_copys=total_revenue[total_revenue["product_type"]==radio_value]
     df_copys=df_copys[df_copys["quantity"]>0]
     
@@ -369,8 +368,7 @@ def tot_unq_sku(radio_value,days_prev,data):
     df = pd.DataFrame(df)
     dfu = pd.DataFrame(dfu)
     dfp=pd.DataFrame(dfp)
-    total_revenue=df.\
-            drop_duplicates(["product_type","Date",'sku'])
+    total_revenue=df.copy()
     df_copys=total_revenue[total_revenue["product_type"]==radio_value]
     df_copys=df_copys[df_copys["quantity"]>0]
     
@@ -485,7 +483,8 @@ def new_customers(radio_value,days_prev,data):
     else:
             df_copy=df_copys.copy()
             df_copy=df_copy.drop(["less_than_30","less_than_60","less_than_90"],1).drop_duplicates(subset=["Date"])
-            
+      
+   
     try:
         fig = px.bar(df_copy, y="total_customers", x="Date",title='new_customers')
     except:
@@ -534,7 +533,7 @@ def unique_customers(radio_value,days_prev,data):
     else:
             df_copy=df_copys.copy()       
             df_copy=df_copy.drop(["less_than_30","less_than_60","less_than_90"],1).drop_duplicates(subset=["Date"])
-            
+    # df_copy["Date"]=df_copy["Date"].dt.strftime('%d/%b/%y')  
     try:
         fig = px.bar(df_copy, y="unique_customer", x="Date",title="UNIQUE_CUSTOMERS")
     except:
@@ -572,7 +571,6 @@ def unique_dollar_graph(radio_value,days_prev,data):
         df_copy=df_copys[df_copys["less_than_30"]==1]
         df_copy["sum_qty"]=df_copy.groupby(['Date'])['quantity'].transform(lambda x:x.sum())
         df_copy["sum_qty"]=df_copy.groupby(['Date'])['quantity'].transform(lambda x:x.sum())
-        df_copy=df_copy.drop_duplicates(subset=["Date"])
         
         df_copy["sum_dollar_value"]=df_copy.groupby(['Date'])['amount'].transform(lambda x:x.sum())
         df_copy=df_copy.drop_duplicates(subset=["Date"])
@@ -583,7 +581,6 @@ def unique_dollar_graph(radio_value,days_prev,data):
         df_copy["sum_qty"]=df_copy.groupby(['Date'])['quantity'].transform(lambda x:x.sum())
         df_copy["avg_product_per_customer"]=df_copy.groupby(['Date'])['sum_qty'].\
             transform(lambda x:x.mean())
-        df_copy=df_copy.drop_duplicates(subset=["Date"])
         
         df_copy["sum_dollar_value"]=df_copy.groupby(['Date'])['amount'].transform(lambda x:x.sum())
         df_copy=df_copy.drop_duplicates(subset=["Date"])
@@ -595,7 +592,6 @@ def unique_dollar_graph(radio_value,days_prev,data):
         df_copy["sum_qty"]=df_copy.groupby(['Date'])['quantity'].transform(lambda x:x.sum())
         df_copy["avg_product_per_customer"]=df_copy.groupby(['Date'])['sum_qty'].\
             transform(lambda x:x.mean())
-        df_copy=df_copy.drop_duplicates(subset=["Date"])
         
         df_copy["sum_dollar_value"]=df_copy.groupby(['Date'])['amount'].transform(lambda x:x.sum())
         df_copy=df_copy.drop_duplicates(subset=["Date"])
@@ -605,15 +601,15 @@ def unique_dollar_graph(radio_value,days_prev,data):
     else:
         df_copy=df_copys.copy()
         df_copy["sum_qty"]=df_copy.groupby(['Date'])['quantity'].transform(lambda x:x.sum())
-        df_copy=df_copy.drop_duplicates(subset=["Date"])    
-        
+      
         df_copy["sum_dollar_value"]=df_copy.groupby(['Date'])['amount'].transform(lambda x:x.sum())
         df_copy=df_copy.drop_duplicates(subset=["Date"])
-        
+    # df_copy["Date"]=df_copy["Date"].dt.strftime('%d/%b/%y')    
     df_copy["sum_qty"]=df_copy["sum_qty"].fillna(0)
+    # df_copy['Date'] = pd.to_datetime(df_copy['Date']).dt.date
     
     fig = make_subplots(specs=[[{"secondary_y": True}]])
-
+    
     # Add traces
     fig.add_trace(
         go.Scatter(name="sum_qty",x=df_copy["Date"], y=df_copy["sum_qty"]), secondary_y=False,
@@ -731,7 +727,7 @@ def Loess(radio_value,days_prev,roll,data):
             transform(lambda x:x.count())
         df_copy["MAF"]=df_copy.groupby(['Date'])['count_orders'].\
             transform(lambda x:x.rolling(window=roll).mean())
-        df_copy=df_copy.drop_duplicates(subset=["Date"])
+        df_copy=df_copy.drop_duplicates(subset=["Date","MAF","count_orders"])
             
 
     elif days_prev=='60':
@@ -741,7 +737,7 @@ def Loess(radio_value,days_prev,roll,data):
         df_copy["MAF"]=df_copy.groupby(['Date'])['count_orders'].\
                 transform(lambda x:x.rolling(window=roll).mean())
                 
-        df_copy=df_copy.drop_duplicates(subset=["Date"])
+        df_copy=df_copy.drop_duplicates(subset=["Date","MAF","count_orders"])
         
         
          
@@ -751,7 +747,7 @@ def Loess(radio_value,days_prev,roll,data):
             transform(lambda x:x.count())
         df_copy["MAF"]=df_copy.groupby(['Date'])['count_orders'].\
                 transform(lambda x:x.rolling(window=roll).mean())
-        df_copy=df_copy.drop_duplicates(subset=["Date"])
+        df_copy=df_copy.drop_duplicates(subset=["Date","MAF","count_orders"])
         
         
         
@@ -762,15 +758,16 @@ def Loess(radio_value,days_prev,roll,data):
             transform(lambda x:x.count())
         df_copy["MAF"]=df_copy.groupby(['Date'])['count_orders'].\
                 transform(lambda x:x.rolling(window=roll).mean())
-        df_copy=df_copy.drop_duplicates(subset=["Date"])
+        df_copy=df_copy.drop_duplicates(subset=["Date","MAF","count_orders"])
 
     
     melted_df=df_copy.melt(id_vars=['Date'],value_vars=["count_orders",'MAF'],var_name='variables',value_name='plot_values').\
         reset_index()
+    # melted_df["Date"]=melted_df["Date"].dt.strftime('%d/%b/%y') 
     try:
-        fig = px.line(melted_df, y=melted_df["plot_values"], x=melted_df["Date"], color='variables',title="Count_and_MAF")
+        fig = px.line(melted_df, y=melted_df["plot_values"], x=melted_df["Date"], color='variables',title="Count_and_MAF",markers=True)
     except:
-        fig = px.line(melted_df, y=melted_df["plot_values"], x=melted_df["Date"], color='variables',title="Count_and_MAF")
+        fig = px.line(melted_df, y=melted_df["plot_values"], x=melted_df["Date"], color='variables',title="Count_and_MAF",markers=True)
     fig=fig.update_layout(template="plotly_dark")
     return fig
 
@@ -798,16 +795,17 @@ def avg_selling_price(radio_value,days_prev,data):
     
     df_copys=df[df["product_type"]==radio_value]
     
+    
     if days_prev=='30':
         df_copy=df_copys[df_copys["less_than_30"]==1]
-        df_copy["avg_selling_price"]=df_copy.groupby(['Date','price'])['price'].\
+        df_copy["avg_selling_price"]=df_copy.groupby(['Date'])['price'].\
             transform(lambda x:x.mean())
         df_copy=df_copy.drop_duplicates(subset=["Date"])
             
 
     elif days_prev=='60':
         df_copy=df_copys[df_copys["less_than_60"]==1]
-        df_copy["avg_selling_price"]=df_copy.groupby(['Date','price'])['price'].\
+        df_copy["avg_selling_price"]=df_copy.groupby(['Date'])['price'].\
             transform(lambda x:x.mean())
         df_copy=df_copy.drop_duplicates(subset=["Date"])
         
@@ -815,7 +813,7 @@ def avg_selling_price(radio_value,days_prev,data):
          
     elif days_prev=='90':
         df_copy=df_copys[df_copys["less_than_90"]==1]
-        df_copy["avg_selling_price"]=df_copy.groupby(['Date','price'])['price'].\
+        df_copy["avg_selling_price"]=df_copy.groupby(['Date'])['price'].\
             transform(lambda x:x.mean())
         df_copy=df_copy.drop_duplicates(subset=["Date"])
         
@@ -824,14 +822,17 @@ def avg_selling_price(radio_value,days_prev,data):
          
     else:
         df_copy=df_copys.copy()
-        df_copy["avg_selling_price"]=df_copy.groupby(['Date','price'])['price'].\
+        df_copy["avg_selling_price"]=df_copy.groupby(['Date'])['price'].\
             transform(lambda x:x.mean())
+      
         df_copy=df_copy.drop_duplicates(subset=["Date"])
         
+    
+    # df_copy["Date"]=df_copy["Date"].dt.strftime('%d/%b/%y') 
     try:    
-        fig = px.line(df_copy, y="avg_selling_price", x="Date",title="Average_selling_price")
+        fig = px.line(df_copy, y=df_copy["avg_selling_price"], x=df_copy["Date"],title="Average_selling_price",markers=True)
     except:
-        fig = px.line(df_copy, y="avg_selling_price", x="Date",title="Average_selling_price")
+        fig = px.line(df_copy, y=df_copy["avg_selling_price"], x=df_copy["Date"],title="Average_selling_price",markers=True)
     fig=fig.update_layout(template="plotly_dark")
     
     return fig

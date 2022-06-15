@@ -27,8 +27,6 @@ DROPDOWN_STYLE = {"textAlign": "left"}
 #############################################################################
 # Create drop-down selector and initial date picker
 
-
-
 filter_bar = call_backs_all.option_selected
 
 # # Container for raw data charts
