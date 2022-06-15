@@ -123,7 +123,7 @@ app = dash.Dash(
     external_stylesheets=[dbc.themes.CYBORG],
 )
 app.config.suppress_callback_exceptions = True
-app.title = "Federal Reserve Data Analysis"
+app.title = "Shopify Data Analysis"
 app.layout = html.Div(
     [dcc.Location(id="url", refresh=False), html.Div(id="page-content")]
 )

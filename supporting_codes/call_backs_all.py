@@ -8,7 +8,7 @@ import plotly.io as pio
 pio.renderers.default='browser'
 from datetime import date, timedelta
 import datetime
-
+import numpy as np
 import urllib.parse
 import urllib
 import dash_bootstrap_components as dbc
@@ -208,30 +208,27 @@ def data_refresh_code(refresh_button,params,container):
     
     
     ############################################for New customer############################
-    less_than_current_date=[]
-    for datee in df["Date"].unique():
-        datee=pd.to_datetime(datee).strftime('%Y-%m-%d')
-        datee=pd.to_datetime(datee,format="%Y-%m-%d").date()
-        if (datee<=max_date):
-            less_than_current_date.append(datee)
+    # less_than_current_date=[]
+    # for datee in df["Date"].unique():
+    #     datee=pd.to_datetime(datee).strftime('%Y-%m-%d')
+    #     datee=pd.to_datetime(datee,format="%Y-%m-%d").date()
+    #     if (datee<=max_date):
+    #         less_than_current_date.append(datee)
             
-    num_new_customers={}   
-    new_customers=[]
-    for datee in less_than_current_date:
-        # print("date : {} ".format(str(datee)))
+    # num_new_customers={}   
+    # new_customers=[]
+    # for datee in less_than_current_date:
+    #     # print("date : {} ".format(str(datee)))
         
-        customers=df[df["Date"]==np.datetime64(datee)]["CustomerID"].unique()
-        unique_customer_date=np.setdiff1d(customers,new_customers)
-        num_new_customers[str(datee)]=len(list(unique_customer_date))
-        new_customers=np.concatenate((new_customers, unique_customer_date), axis=None)
+    #     customers=df[df["Date"]==np.datetime64(datee)]["CustomerID"].unique()
+    #     unique_customer_date=np.setdiff1d(customers,new_customers)
+    #     num_new_customers[str(datee)]=len(list(unique_customer_date))
+    #     new_customers=np.concatenate((new_customers, unique_customer_date), axis=None)
         
-    new_customers_tot=pd.DataFrame(num_new_customers.items(),columns=["Date","total_customers"])    
-    new_customers_tot["Date"]=pd.to_datetime(new_customers_tot["Date"],format="%Y-%m-%d")
+    # new_customers_tot=pd.DataFrame(num_new_customers.items(),columns=["Date","total_customers"])    
+    # new_customers_tot["Date"]=pd.to_datetime(new_customers_tot["Date"],format="%Y-%m-%d")
     
     
-    df=pd.merge(df,new_customers_tot,on=["Date"],how="left")
-    layout_update=drop_down_updater(df)
-    ############################################for New customer############################
     
     less_than_30=max_date- timedelta(days=30)
     less_than_60=max_date- timedelta(days=60)
@@ -243,7 +240,25 @@ def data_refresh_code(refresh_button,params,container):
     df.loc[df["Date"]>=pd.to_datetime(less_than_60),"less_than_60"]=1
     df.loc[df["Date"]>=pd.to_datetime(less_than_90),"less_than_90"]=1
     
+    
+    
     df["Date"]=df["Date"].dt.strftime('%d/%b/%y')#output
+    
+    first_date=df.groupby(["CustomerID"]).first().reset_index()
+    first_date=first_date[["Date","CustomerID"]]
+    first_date['CustomerID']=first_date['CustomerID'].replace('nan',np.nan)
+    first_date = first_date[first_date['CustomerID'].notna()]
+    first_date["total_customers"]=first_date.groupby(["Date"])["CustomerID"].transform(lambda x:x.count())
+    first_date=first_date.drop_duplicates(subset="Date").drop(["CustomerID"],axis=1)
+    
+    
+    
+    df=pd.merge(df,first_date,on=["Date"],how="left")
+    layout_update=drop_down_updater(df)
+    ############################################for New customer############################
+    
+
+    
     
     
     dfu=df.copy()#output
@@ -285,11 +300,10 @@ def data_refresh_code(refresh_button,params,container):
 def revenue_tot(radio_value,days_prev,data):
     
     dfp,df,dfu=data
-    df = pd.DataFrame(df)
-    dfu = pd.DataFrame(dfu)
+    # df = pd.DataFrame(df)
 
     
-    total_revenue=df.copy()
+    total_revenue=pd.DataFrame(df)
     df_copys=total_revenue[total_revenue["product_type"]==radio_value]
     df_copys=df_copys[df_copys["quantity"]>0]
     
@@ -383,10 +397,7 @@ def tot_prod(radio_value,days_prev,data):
     )
 def tot_unq_sku(radio_value,days_prev,data):
     dfp,df,dfu=data
-    df = pd.DataFrame(df)
-    dfu = pd.DataFrame(dfu)
-    dfp=pd.DataFrame(dfp)
-    total_revenue=df.copy()
+    total_revenue=pd.DataFrame(df)
     df_copys=total_revenue[total_revenue["product_type"]==radio_value]
     df_copys=df_copys[df_copys["quantity"]>0]
     
@@ -445,8 +456,6 @@ layout7 = html.Div([
     )
 def display_(radio_value,day_prev,toggle,data):
     dfp,df,dfu=data
-    df = pd.DataFrame(df)
-    dfu = pd.DataFrame(dfu)
     dfp = pd.DataFrame(dfp)
 
     df_copy=dfp[dfp["product_type"]==radio_value].drop("product_type",1)
@@ -482,8 +491,6 @@ layout6 = html.Div([
 def new_customers(radio_value,days_prev,data):
     dfp,df,dfu=data
     df = pd.DataFrame(df)
-    dfu = pd.DataFrame(dfu)
-    dfp = pd.DataFrame(dfp)
     
     df_copys=df[df["product_type"]==radio_value].drop("product_type",1)
     
@@ -529,9 +536,7 @@ layout5 = html.Div([
     )
 def unique_customers(radio_value,days_prev,data):
     dfp,df,dfu=data
-    df = pd.DataFrame(df)
     dfu = pd.DataFrame(dfu)
-    dfp = pd.DataFrame(dfp)
     
     
     df_copys=dfu[dfu["product_type"]==radio_value].drop("product_type",1)
@@ -580,8 +585,7 @@ def unique_dollar_graph(radio_value,days_prev,data):
     
     dfp,df,dfu=data
     df = pd.DataFrame(df)
-    dfu = pd.DataFrame(dfu)
-    dfp = pd.DataFrame(dfp)
+
     
     df_copys=df[df["product_type"]==radio_value].drop("product_type",1)
     
@@ -672,8 +676,7 @@ layout3 = html.Div([
 def products_per_unq_customers(radio_value,days_prev,data):
     dfp,df,dfu=data
     df = pd.DataFrame(df)
-    dfu = pd.DataFrame(dfu)
-    dfp = pd.DataFrame(dfp)
+
     
     df_copys=df[df["product_type"]==radio_value].drop("product_type",1)
     
@@ -734,8 +737,7 @@ layout2 = html.Div([
 def Loess(radio_value,days_prev,roll,data):
     dfp,df,dfu=data
     df = pd.DataFrame(df)
-    dfu = pd.DataFrame(dfu)
-    dfp = pd.DataFrame(dfp)
+
     
     df_copys=df[df["product_type"]==radio_value].drop("product_type",1)
     
@@ -808,9 +810,7 @@ layout1 = html.Div([
 def avg_selling_price(radio_value,days_prev,data):
     dfp,df,dfu=data
     df = pd.DataFrame(df)
-    dfu = pd.DataFrame(dfu)
-    dfp = pd.DataFrame(dfp)
-    
+
     df_copys=df[df["product_type"]==radio_value]
     
     
