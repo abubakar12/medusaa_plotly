@@ -13,6 +13,23 @@ import urllib.parse
 import urllib
 import dash_bootstrap_components as dbc
 import sqlalchemy
+import base64 
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad,unpad
+
+def decrypt(enc):
+        key = '!!!!kfk9072p!!!!' #16 char for AES128
+        iv =  'aaiissyysstteemm'.encode('utf-8') #16 char for AES128
+        enc = base64.b64decode(enc)
+        cipher = AES.new(key.encode('utf-8'), AES.MODE_CBC, iv)
+        return unpad(cipher.decrypt(enc),16)
+
+# encrypted = 'DeYzAMHasX89sV8l5fdXPg==' #encrypted URL
+
+# decrypted = decrypt(encrypted)
+# x = int(decrypted.decode("utf-8", "ignore"))
+# print(x)
+
 params =urllib.parse.quote_plus('Driver={ODBC Driver 13 for SQL Server};'
                                 'Server=tcp:shopifyai.database.windows.net,1433;'
                                 'Database=ShopifyAI;'
@@ -23,8 +40,7 @@ params =urllib.parse.quote_plus('Driver={ODBC Driver 13 for SQL Server};'
 engine = sqlalchemy.create_engine("mssql+pyodbc:///?odbc_connect={}".format(params))
 
 client_id=36
-tableau_file=pd.read_sql(f"select * from salesanalytics where cid = {client_id}",engine,\
-                             columns=["Date",'Year','Month',"Day",'CustomerID','product_type','quantity','amount','price',"product_id",'sku'])
+tableau_file=pd.read_sql(f"select Date,CustomerID,product_type,quantity,amount,price,product_id,sku from salesanalytics where cid = {client_id}",engine)
 max_date=pd.to_datetime("2-18-2022",format="%m-%d-%Y")
 max_date=pd.to_datetime(max_date).date()
 # max_date=date.today()
@@ -167,11 +183,13 @@ def data_refresh_code(refresh_button,params,container):
     parsed = urllib.parse.urlparse(params)
     parsed_dict = urllib.parse.parse_qs(parsed.query)
     client_variable_name=list(parsed_dict.keys())[0]
-    client_id=parsed_dict[client_variable_name][0]
+    encrypted_client_id=parsed_dict[client_variable_name][0]
+    decrypted = decrypt(encrypted_client_id)
+    client_id = int(decrypted.decode("utf-8", "ignore"))
+    print(client_id)
     
 
-    tableau_file=pd.read_sql(f"select * from salesanalytics where cid = {client_id}",engine,\
-                             columns=["Date",'Year','Month',"Day",'CustomerID','product_type','quantity','amount','price',"product_id",'sku'])
+    tableau_file=pd.read_sql(f"select Date,CustomerID,product_type,quantity,amount,price,product_id,sku from salesanalytics where cid = {client_id}",engine)
     
     
     print(parsed_dict)
