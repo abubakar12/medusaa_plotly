@@ -22,7 +22,7 @@ params =urllib.parse.quote_plus('Driver={ODBC Driver 13 for SQL Server};'
                                 'Connection Timeout=30;')
 engine = sqlalchemy.create_engine("mssql+pyodbc:///?odbc_connect={}".format(params))
 
-client_id=36
+client_id=50
 tableau_file=pd.read_sql(f"select * from salesanalytics where cid = {client_id}",engine,\
                              columns=["Date",'Year','Month',"Day",'CustomerID','product_type','quantity','amount','price',"product_id",'sku'])
 max_date=pd.to_datetime("2-18-2022",format="%m-%d-%Y")
@@ -79,7 +79,7 @@ option_selected = dbc.Container([
                     options=df["product_type"].unique(),
                     value=df["product_type"].unique()[-1]),
                     # md=2,
-                    ],id="container",),
+                    ]),
                 ),
                 dbc.Col(
                     html.Div([
@@ -110,21 +110,87 @@ option_selected = dbc.Container([
                 ),
             ]
         )
-        ],fluid=True,
+        ],fluid=True,id="container",
 )
 
 ###############################################################################
 #change dropdown values
 def drop_down_updater(df):
-    option_selected = html.Div([
+    option_selected = dbc.Container([
+            dbc.Row(
+                [
+                    dbc.Col(
+                        dbc.Alert(
+                            [
+                                html.H6("Total Revenue : "),
+                                html.H6(id="tot_rev"),
+                            ],
+                            color="light",
+                        ),
+                      
+                    ),
+                    dbc.Col(
+                        dbc.Alert(
+                            [
+                                html.H6("TOtal products sold: "),
+                                html.H6(id="tot_prod"),
+                            ],
+                            color="success",
+                        ),
+                     
+                    ),
+                    dbc.Col(
+                        dbc.Alert(
+                            [
+                                html.H6("Unique Skus Sold: "),
+                                html.H6(id="unq_sku"),
+                            ],
+                            color="success",
+                        ),
+                        
+                    ),
+            
+                    dbc.Col(
+                        html.Div([
                         html.H6("prod_type"),
                         dcc.Dropdown(
                         id='prod_type',
                         options=df["product_type"].unique(),
                         value=df["product_type"].unique()[-1]),
                         # md=2,
-                        ],id="container",)
-                  
+                        ]),
+                    ),
+                    dbc.Col(
+                        html.Div([
+                            html.H6("Days_prev"),
+                            dcc.Dropdown(
+                                id='days_prev',
+                                options=['30','60','90','ALL'],
+                                value='ALL'
+                            ),
+                        # md=2,
+                        ]),
+                    ),
+                    dbc.Col(
+                        html.Div([
+                        html.H6(id="selected"),
+                        # md=2,
+                        ]),width=True,
+                    ),
+                    
+                    dbc.Col(
+                        html.Div([
+                        html.H6(id="data_refresh"),
+                        dbc.Button("Refresh Data",id="refresh_button",n_clicks=0,color="primary"),
+                        dcc.Store(id='store-data', data=[1,2,3,4], storage_type='memory'),
+                        dcc.Location(id='url_user', refresh=False),
+                        # md=2,
+                        ]),width=True,
+                    ),
+                ]
+            )
+            ],fluid=True,id="container",
+    )
 
     return option_selected
 
@@ -162,7 +228,7 @@ def revenue_tots(radio_value,days_prev):
     Input("url_user","search"),
     State('container', 'children'),
     )
-def data_refresh_code(refresh_button,params,container):
+def data_refresh_code(refresh_button,params):
     # e.g. params = '?firstname=John&lastname=Smith&birthyear=1990'
     parsed = urllib.parse.urlparse(params)
     parsed_dict = urllib.parse.parse_qs(parsed.query)
@@ -212,7 +278,7 @@ def data_refresh_code(refresh_button,params,container):
     
     
     df=pd.merge(df,new_customers_tot,on=["Date"],how="left")
-    layout_update=drop_down_updater(df)
+    
     ############################################for New customer############################
     
     less_than_30=max_date- timedelta(days=30)
@@ -245,7 +311,7 @@ def data_refresh_code(refresh_button,params,container):
     dfu=dfu.to_dict('dfu')
     dfp=dfp.to_dict('df')
     
-    
+    layout_update=drop_down_updater(df)
     
     return [dfp,df,dfu],"Refreshed Date : {}".format(datetime.datetime.now().strftime('%y-%m-%d %a %H:%M:%S')),layout_update
     
