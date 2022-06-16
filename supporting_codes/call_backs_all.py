@@ -23,6 +23,15 @@ def decrypt(enc):
         enc = base64.b64decode(enc)
         cipher = AES.new(key.encode('utf-8'), AES.MODE_CBC, iv)
         return unpad(cipher.decrypt(enc),16)
+def encrypt(data):
+        key = '!!!!kfk9072p!!!!' #16 char for AES128
+        iv =  'aaiissyysstteemm'.encode('utf-8') #16 char for AES128
+        data= pad(data.encode(),16)
+        cipher = AES.new(key.encode('utf-8'),AES.MODE_CBC,iv)
+        return base64.b64encode(cipher.encrypt(data))
+    
+# link=f"/prod_id_page/?client_id={encrypt(data)}"
+
 
 # encrypted = 'DeYzAMHasX89sV8l5fdXPg==' #encrypted URL
 
@@ -119,13 +128,16 @@ option_selected = dbc.Container([
                     html.Div([
                     html.H6(id="data_refresh"),
                     dbc.Button("Refresh Data",id="refresh_button",n_clicks=0,color="primary"),
-                    dcc.Store(id='store-data', data=[1,2,3,4], storage_type='memory'),
+                    dcc.Store(id='store-data', data=[1,2,3,4], storage_type='session'),
                     dcc.Location(id='url_user', refresh=False),
+        
                     # md=2,
                     ]),width=True,
                 ),
             ]
-        )
+        ),
+        dbc.Row(id="basic_div")
+        
         ],fluid=True,
 )
 
@@ -169,11 +181,13 @@ def revenue_tots(radio_value,days_prev):
 #     dcc.Store(id='store-data', data=[], storage_type='memory')
 # ])
 
-
+# link=f"/prod_id_page/?client_id={encrypt(data)}"
+# dbc.Row(html.Div(dcc.Link('Product_id page', href=link)),id="basic_div")
 @callback(
     Output("store-data", "data"), 
     Output("data_refresh", "children"),
     Output("container","children"),
+    Output("basic_div","children"),
     Input("refresh_button","n_clicks"),
     Input("url_user","search"),
     State('container', 'children'),
@@ -186,7 +200,9 @@ def data_refresh_code(refresh_button,params,container):
     encrypted_client_id=parsed_dict[client_variable_name][0]
     decrypted = decrypt(encrypted_client_id)
     client_id = int(decrypted.decode("utf-8", "ignore"))
-    print(client_id)
+    # print(client_id)
+    link=f"/prod_id_page/?client_id={encrypted_client_id}"
+    linking=dbc.Row(html.Div(dcc.Link('Product_id page', href=link)),id="basic_div")
     
 
     tableau_file=pd.read_sql(f"select Date,CustomerID,product_type,quantity,amount,price,product_id,sku from salesanalytics where cid = {client_id}",engine)
@@ -281,7 +297,7 @@ def data_refresh_code(refresh_button,params,container):
     
     
     
-    return [dfp,df,dfu],"Refreshed Date : {}".format(datetime.datetime.now().strftime('%y-%m-%d %a %H:%M:%S')),layout_update
+    return [dfp,df,dfu],"Refreshed Date : {}".format(datetime.datetime.now().strftime('%y-%m-%d %a %H:%M:%S')),layout_update,linking
     
 
        

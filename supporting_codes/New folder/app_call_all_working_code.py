@@ -4,12 +4,11 @@ from dash import html
 from dash import dcc
 from dash.dependencies import Input, Output,State
 import dash_bootstrap_components as dbc
-from supporting_codes import call_backs_all_for_prodid
+from supporting_codes import call_backs_all
 import plotly.io as pio
 plotly_template = pio.templates["plotly_dark"]
 plotly_template.layout
 import time
-from dash.exceptions import PreventUpdate
 
 #############################################################################
 # Style modifications
@@ -28,13 +27,13 @@ DROPDOWN_STYLE = {"textAlign": "left"}
 #############################################################################
 # Create drop-down selector and initial date picker
 
-filter_bar = call_backs_all_for_prodid.option_selected
+filter_bar = call_backs_all.option_selected
 
 # # Container for raw data charts
 basic_data = dbc.Row(
     [
         dbc.Col(
-            call_backs_all_for_prodid.layout1,
+            call_backs_all.layout1,
             
             md=12,
         ),
@@ -45,11 +44,11 @@ basic_data = dbc.Row(
 baseline_data = dbc.Row(
     [
         dbc.Col(
-            call_backs_all_for_prodid.layout2,
+            call_backs_all.layout2,
             md=6,
         ),
         dbc.Col(
-            call_backs_all_for_prodid.layout7,
+            call_backs_all.layout7,
             md=6,
         ),
     ]
@@ -59,11 +58,11 @@ baseline_data = dbc.Row(
 category_data = dbc.Row(
     [
         dbc.Col(
-            call_backs_all_for_prodid.layout6,
+            call_backs_all.layout6,
             md=6,
         ),
         dbc.Col(
-            call_backs_all_for_prodid.layout3,
+            call_backs_all.layout3,
             md=6,
         ),
     ]
@@ -72,11 +71,11 @@ category_data = dbc.Row(
 category_data2 = dbc.Row(
     [
         dbc.Col(
-            call_backs_all_for_prodid.layout5,
+            call_backs_all.layout5,
             md=6,
         ),
         dbc.Col(
-            call_backs_all_for_prodid.layout4,
+            call_backs_all.layout4,
             md=6,
         ),
     ]
@@ -134,9 +133,9 @@ app.layout = html.Div(
 def display_page(pathname):
     # Left in because I'm not sure if this will be a muli-page app at some point
 
-    # if pathname == "/market-sentiment":
-    #     return volumes
-    # else:
+    if pathname == "/prod_id":
+        return volumes
+    else:
     return main_page
 
 
