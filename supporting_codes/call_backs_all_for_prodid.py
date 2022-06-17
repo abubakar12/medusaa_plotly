@@ -2,7 +2,7 @@ import numpy as np
 import plotly.express as px
 import pandas as pd
 import dash
-from dash import dcc, html, Input, Output, callback,State
+# from dash import dcc, html, Input, Output, callback,State
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import plotly.io as pio
@@ -18,6 +18,8 @@ import base64
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad,unpad
 from dash.exceptions import PreventUpdate
+from dash_extensions.enrich import DashProxy, Output, Input, State, ServersideOutput, html, dcc, \
+    ServersideOutputTransform,callback
 
 def decrypt(enc):
         key = '!!!!kfk9072p!!!!' #16 char for AES128
@@ -135,14 +137,15 @@ option_selected = dbc.Container([
                     html.Div([
                     html.H6(id="data_refresh_id"),
                     dbc.Button("Refresh Data",id="refresh_button",n_clicks=0,color="primary"),
-                    dcc.Store(id='store-data2', data=[1,2,3,4], storage_type='session'),
+                    # dcc.Store(id='store-data2', data=[1,2,3,4], storage_type='session'),
+                    dcc.Loading(dcc.Store(id="store-data2", storage_type='session'), fullscreen=True, type="dot"),
                     dcc.Location(id='url_user2', refresh=False),
                     # md=2,
                     ]),width=True,
                 ),
             ]
         ),
-        dbc.Row(html.Div(dcc.Link('Category', href='/Category_page'))),
+        # dbc.Row(html.Div(dcc.Link('Category', href='/Category_page'))),
         ],fluid=True,
 )
 
@@ -187,7 +190,7 @@ def drop_down_updater(df):
     )
 def revenue_tots(radio_value,days_prev2,data):
     _,df,_=data
-    df = pd.DataFrame(df)
+    # df = pd.DataFrame(df)
     df=df[df["product_type"]==radio_value]
     val=[{'label': str(i), 'value': str(i)} for i in df["product_id"].unique()]
     output="Product Type : {}-Days Previous : {}".format(radio_value,days_prev2)
@@ -195,7 +198,7 @@ def revenue_tots(radio_value,days_prev2,data):
 
 @callback(
     Output("prod_id", "value"),
-    Input("prod_id", "options"))
+    Input("prod_id", "options"), prevent_initial_call=True)
 def set_cities_value(available_options):
     return available_options[0]['value']
 
@@ -204,19 +207,19 @@ def set_cities_value(available_options):
 
 
 @callback(
-    Output("store-data2", "data"), 
+    ServersideOutput("store-data2", "data"), 
     Output("data_refresh_id", "children"),
     Output("container_prod_type","children"),
     Output("container_prod_id","children"),
     Input("refresh_button","n_clicks"),
     Input("url_user2","search"),
     State('container_prod_type', 'children'),
-    State('container_prod_id', 'children'),
+    State('container_prod_id', 'children')
     )
 def data_refresh_code(refresh_button,params,container_prod_type,container_prod_id):
-    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+    # changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
-    if ('refresh_button' in changed_id)or((refresh_button==0)):
+    # if ('refresh_button' in changed_id)or((refresh_button==0)):
         parsed = urllib.parse.urlparse(params)
         parsed_dict = urllib.parse.parse_qs(parsed.query)
         client_variable_name=list(parsed_dict.keys())[0]
@@ -288,15 +291,14 @@ def data_refresh_code(refresh_button,params,container_prod_type,container_prod_i
         dfu["unique_customer"]=dfu.groupby(["Date",'product_type'])['CustomerID'].\
                 transform(lambda x:x.nunique())
         dfu=dfu.drop_duplicates(subset=["Date",'product_type'])#output
-        df=df.to_dict('df')
-        dfu=dfu.to_dict('dfu')
-        dfp=dfp.to_dict('df')
+        # df=df.to_dict('df')
+        # dfu=dfu.to_dict('dfu')
+        # dfp=dfp.to_dict('df')
         
         
-        
+        df.to_csv("SSSSSSSS.csv")
         return [dfp,df,dfu],"Refreshed Date : {}".format(datetime.datetime.now().strftime('%y-%m-%d %a %H:%M:%S')),layout_update,layout_update1
-    else:
-        return PreventUpdate
+
 
        
 ###############################################################################################################
@@ -310,15 +312,15 @@ def data_refresh_code(refresh_button,params,container_prod_type,container_prod_i
     Input("prod_type2", "value"),
     Input("prod_id","value"),
     Input("days_prev2","value"),
-    Input('store-data2', 'data'),
+    Input('store-data2', 'data'), prevent_initial_call=True
     )
 def revenue_tot(radio_value,prod_id,days_prev2,data):
-    
+    print("{}....".format(data),flush=True)
     dfp,df,dfu=data
     # df = pd.DataFrame(df)
 
-    
-    total_revenue=pd.DataFrame(df)
+    total_revenue=df.copy()
+    # total_revenue=pd.DataFrame(df)
     df_copys=total_revenue[(total_revenue["product_type"]==radio_value)\
                            &(total_revenue["product_id"]==prod_id)]
     df_copys=df_copys[df_copys["quantity"]>0]
@@ -362,11 +364,11 @@ def revenue_tot(radio_value,prod_id,days_prev2,data):
     Input("prod_type2", "value"),
     Input("prod_id","value"),
     Input("days_prev2","value"),
-    Input('store-data2', 'data'),
+    Input('store-data2', 'data'), prevent_initial_call=True
     )
 def tot_prod_id(radio_value,prod_id,days_prev2,data):
     dfp,df,dfu=data
-    df = pd.DataFrame(df)
+    # df = pd.DataFrame(df)
 
     total_revenue=df.copy()
     df_copys=total_revenue[(total_revenue["product_type"]==radio_value)\
@@ -412,11 +414,12 @@ def tot_prod_id(radio_value,prod_id,days_prev2,data):
     Input("prod_type2", "value"),
     Input("prod_id","value"),
     Input("days_prev2","value"),
-    Input('store-data2', 'data'),
+    Input('store-data2', 'data'), prevent_initial_call=True
     )
 def tot_unq_sku(radio_value,prod_id,days_prev2,data):
     dfp,df,dfu=data
-    total_revenue=pd.DataFrame(df)
+    total_revenue=df.copy()
+    # total_revenue=pd.DataFrame(df)
     df_copys=total_revenue[(total_revenue["product_type"]==radio_value)\
                            &(total_revenue["product_id"]==prod_id)]
     df_copys=df_copys[df_copys["quantity"]>0]
@@ -473,11 +476,11 @@ layout7 = html.Div([
     Input("prod_id","value"),
     Input("days_prev2","value"),
     Input("toggle_sort","n_clicks"),  
-    Input('store-data2', 'data'),
+    Input('store-data2', 'data'), prevent_initial_call=True
     )
 def display_(radio_value,prod_id,day_prev,toggle,data):
     dfp,df,dfu=data
-    dfp = pd.DataFrame(dfp)
+    # dfp = pd.DataFrame(dfp)
 
     df_copy=dfp[(dfp["product_type"]==radio_value)\
                                &(dfp["product_id"]==prod_id)].drop("product_type",1)
@@ -509,11 +512,11 @@ layout6 = html.Div([
     Input("prod_type2", "value"),
     Input("prod_id","value"),
     Input("days_prev2","value"),
-    Input('store-data2', 'data'),
+    Input('store-data2', 'data'), prevent_initial_call=True
     )
 def new_customers(radio_value,prod_id,days_prev2,data):
     dfp,df,dfu=data
-    df = pd.DataFrame(df)
+    # df = pd.DataFrame(df)
     
     df_copys=df[(df["product_type"]==radio_value)\
                                &(df["product_id"]==prod_id)].drop("product_type",1)
@@ -557,11 +560,11 @@ layout5 = html.Div([
     Input("prod_type2", "value"),
     Input("prod_id","value"),
     Input("days_prev2","value"),
-    Input('store-data2', 'data'),
+    Input('store-data2', 'data'), prevent_initial_call=True
     )
 def unique_customers(radio_value,prod_id,days_prev2,data):
     dfp,df,dfu=data
-    dfu = pd.DataFrame(dfu)
+    # dfu = pd.DataFrame(dfu)
     
     
     df_copys=dfu[(dfu["product_type"]==radio_value)\
@@ -606,12 +609,12 @@ layout4 = html.Div([
     Input("prod_type2", "value"),
     Input("prod_id","value"),
     Input("days_prev2","value"),
-    Input('store-data2', 'data'),
+    Input('store-data2', 'data'), prevent_initial_call=True
     )
 def unique_dollar_graph(radio_value,prod_id,days_prev2,data):
     
     dfp,df,dfu=data
-    df = pd.DataFrame(df)
+    # df = pd.DataFrame(df)
 
     
     df_copys=df[(df["product_type"]==radio_value)\
@@ -700,11 +703,11 @@ layout3 = html.Div([
     Input("prod_type2", "value"),
     Input("prod_id","value"),
     Input("days_prev2","value"),
-    Input('store-data2', 'data'),
+    Input('store-data2', 'data'), prevent_initial_call=True
     )
 def products_per_unq_customers(radio_value,prod_id,days_prev2,data):
     dfp,df,dfu=data
-    df = pd.DataFrame(df)
+    # df = pd.DataFrame(df)
 
     
     df_copys=df[(df["product_type"]==radio_value)\
@@ -763,11 +766,11 @@ layout2 = html.Div([
     Input("prod_id","value"),
     Input("days_prev2","value"),
     Input("mov_avg_filt","value"),
-    Input('store-data2', 'data'),
+    Input('store-data2', 'data'), prevent_initial_call=True
     )
 def Loess(radio_value,prod_id,days_prev2,roll,data):
     dfp,df,dfu=data
-    df = pd.DataFrame(df)
+    # df = pd.DataFrame(df)
 
     
     df_copys=df[(df["product_type"]==radio_value)\
@@ -838,11 +841,11 @@ layout1 = html.Div([
     Input("prod_type2", "value"),
     Input("prod_id","value"),
     Input("days_prev2","value"),
-    Input('store-data2', 'data'),
+    Input('store-data2', 'data'), prevent_initial_call=True
     )
 def avg_selling_price(radio_value,prod_id,days_prev2,data):
     dfp,df,dfu=data
-    df = pd.DataFrame(df)
+    # df = pd.DataFrame(df)
 
     df_copys=df[(df["product_type"]==radio_value)\
                                &(df["product_id"]==prod_id)]

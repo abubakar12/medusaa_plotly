@@ -2,7 +2,7 @@ import dash
 import pandas as pd
 from dash import html
 from dash import dcc
-from dash.dependencies import Input, Output,State
+# from dash.dependencies import Input, Output,State
 import dash_bootstrap_components as dbc
 from supporting_codes import call_backs_all_for_prodid
 import plotly.io as pio
@@ -10,7 +10,8 @@ plotly_template = pio.templates["plotly_dark"]
 plotly_template.layout
 import time
 from dash.exceptions import PreventUpdate
-
+from dash_extensions.enrich import DashProxy, Output, Input, State, ServersideOutput, html, dcc, \
+    ServersideOutputTransform,callback
 #############################################################################
 # Style modifications
 #############################################################################
@@ -118,12 +119,14 @@ main_page = dbc.Container(
 #############################################################################
 # Application parameters
 #############################################################################
-app = dash.Dash(
-    __name__,
-    suppress_callback_exceptions=True,
-    external_stylesheets=[dbc.themes.CYBORG],
-)
-app.config.suppress_callback_exceptions = True
+# app = dash.Dash(
+#     __name__,
+#     suppress_callback_exceptions=True,
+#     external_stylesheets=[dbc.themes.CYBORG],
+# )
+app = DashProxy(__name__,transforms=[ServersideOutputTransform()],\
+                external_stylesheets=[dbc.themes.CYBORG],suppress_callback_exceptions=True,)
+# app.config.suppress_callback_exceptions = True
 app.title = "Shopify Data Analysis"
 app.layout = html.Div(
     [dcc.Location(id="url", refresh=False), html.Div(id="page-content")]
@@ -146,5 +149,5 @@ def display_page(pathname):
 if __name__ == "__main__":
 
     app.run_server(
-   debug=True,port=4204
+   debug=False,port=4404
       )

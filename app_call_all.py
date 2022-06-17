@@ -2,7 +2,8 @@ import dash
 import pandas as pd
 from dash import html
 from dash import dcc
-from dash.dependencies import Input, Output,State
+from dash_extensions.enrich import DashProxy, Output, Input, State, ServersideOutput, html, dcc, \
+    ServersideOutputTransform,callback
 import dash_bootstrap_components as dbc
 from supporting_codes import call_backs_all
 from supporting_codes import call_backs_all_for_prodid
@@ -221,12 +222,14 @@ main_page = dbc.Container(
 #############################################################################
 # Application parameters
 #############################################################################
-app = dash.Dash(
-    __name__,
-    suppress_callback_exceptions=True,
-    external_stylesheets=[dbc.themes.CYBORG],
-)
-app.config.suppress_callback_exceptions = True
+# app = dash.Dash(
+#     __name__,
+#     suppress_callback_exceptions=True,
+#     external_stylesheets=[dbc.themes.CYBORG],
+# )
+app = DashProxy(__name__,transforms=[ServersideOutputTransform()],\
+                external_stylesheets=[dbc.themes.CYBORG],suppress_callback_exceptions=True,)
+# app.config.suppress_callback_exceptions = True
 app.title = "Shopify Data Analysis"
 app.layout = html.Div(
     [dcc.Location(id="url", refresh=False), html.Div(id="page-content")]
