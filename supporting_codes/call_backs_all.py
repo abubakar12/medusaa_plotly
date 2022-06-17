@@ -194,11 +194,11 @@ def revenue_tots(radio_value,days_prev):
     State('container', 'children'),
     )
 def data_refresh_code(refresh_button,params,container):
-    # e.g. params = '?firstname=John&lastname=Smith&birthyear=1990'
+    # params = '?client_id=+iDjnF5YnfqX55p1WL0ECQ=='
     parsed = urllib.parse.urlparse(params)
-    parsed_dict = urllib.parse.parse_qs(parsed.query)
-    client_variable_name=list(parsed_dict.keys())[0]
-    encrypted_client_id=parsed_dict[client_variable_name][0]
+    parsed_dict = parsed.query
+    
+    encrypted_client_id=parsed_dict.replace('client_id=',"")
     decrypted = decrypt(encrypted_client_id)
     client_id = int(decrypted.decode("utf-8", "ignore"))
     # print(client_id)

@@ -220,13 +220,13 @@ def data_refresh_code(refresh_button,params,container_prod_type,container_prod_i
     # changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
     # if ('refresh_button' in changed_id)or((refresh_button==0)):
+        # params = '?client_id=+iDjnF5YnfqX55p1WL0ECQ=='
         parsed = urllib.parse.urlparse(params)
-        parsed_dict = urllib.parse.parse_qs(parsed.query)
-        client_variable_name=list(parsed_dict.keys())[0]
-        encrypted_client_id=parsed_dict[client_variable_name][0]
+        parsed_dict = parsed.query
+        
+        encrypted_client_id=parsed_dict.replace('client_id=',"")
         decrypted = decrypt(encrypted_client_id)
         client_id = int(decrypted.decode("utf-8", "ignore"))
-        print(client_id)
         
     
         tableau_file=pd.read_sql(f"select Date,CustomerID,product_type,quantity,amount,price,product_id,sku from salesanalytics where cid = {client_id}",engine)

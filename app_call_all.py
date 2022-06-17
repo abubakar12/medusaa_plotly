@@ -252,5 +252,5 @@ def display_page(pathname):
 if __name__ == "__main__":
 
     app.run_server(
-   debug=True,port=4204
+   debug=False,port=6204
       )
