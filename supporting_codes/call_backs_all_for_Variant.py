@@ -28,14 +28,8 @@ def decrypt(enc):
         cipher = AES.new(key.encode('utf-8'), AES.MODE_CBC, iv)
         return unpad(cipher.decrypt(enc),16)
 
-def encrypt(data):
-        key = '!!!!kfk9072p!!!!' #16 char for AES128
-        iv =  'aaiissyysstteemm'.encode('utf-8') #16 char for AES128
-        data= pad(data.encode(),16)
-        cipher = AES.new(key.encode('utf-8'),AES.MODE_CBC,iv)
-        return base64.b64encode(cipher.encrypt(data))
     
-# link=f"/prod_id_page/?client_id={encrypt(data)}"
+# link=f"/variant_id_page/?client_id={encrypt(data)}"
 
 params =urllib.parse.quote_plus('Driver={ODBC Driver 13 for SQL Server};'
                                 'Server=tcp:shopifyai.database.windows.net,1433;'
@@ -46,8 +40,8 @@ params =urllib.parse.quote_plus('Driver={ODBC Driver 13 for SQL Server};'
                                 'Connection Timeout=30;')
 engine = sqlalchemy.create_engine("mssql+pyodbc:///?odbc_connect={}".format(params))
 
-# client_id=50
-# tableau_file=pd.read_sql(f"select Date,CustomerID,product_type,quantity,amount,price,product_id,sku from salesanalytics where cid = {client_id}",engine)
+client_id=50
+# tableau_file=pd.read_sql(f"select Date,CustomerID,product_type,quantity,amount,price,variant_id,sku from salesanalytics where cid = {client_id}",engine)
 # max_date=tableau_file[tableau_file["quantity"].notnull()]["Date"].max()
 # max_date=pd.to_datetime(max_date).date()
 
@@ -56,7 +50,7 @@ engine = sqlalchemy.create_engine("mssql+pyodbc:///?odbc_connect={}".format(para
 # df = tableau_file.copy()  # iris is a pandas DataFrame
 # df["product_type"]=df["product_type"].astype(str)
 # df["CustomerID"]=df["CustomerID"].astype(str)
-# df["product_id"]=df["product_id"].astype(str)
+# df["variant_id"]=df["variant_id"].astype(str)
 
 
 ###########################################################################################
@@ -68,7 +62,7 @@ option_selected = dbc.Container([
                     dbc.Alert(
                         [
                             html.H6("Total Revenue : "),
-                            html.H6(id="tot_rev2"),
+                            html.H6(id="tot_rev_variant"),
                         ],
                         color="light",
                     ),
@@ -77,8 +71,8 @@ option_selected = dbc.Container([
                 dbc.Col(
                     dbc.Alert(
                         [
-                            html.H6("TOtal products sold: "),
-                            html.H6(id="tot_prod_id"),
+                            html.H6("TOtal variants sold: "),
+                            html.H6(id="tot_variant_id"),
                         ],
                         color="success",
                     ),
@@ -88,7 +82,7 @@ option_selected = dbc.Container([
                     dbc.Alert(
                         [
                             html.H6("Unique Skus Sold: "),
-                            html.H6(id="unq_sku_id"),
+                            html.H6(id="unq_sku_var"),
                         ],
                         color="success",
                     ),
@@ -97,23 +91,23 @@ option_selected = dbc.Container([
         
                 dbc.Col(
                     html.Div([
-                    html.H6("prod_type2"),
+                    html.H6("prod_type"),
                     dcc.Dropdown(
-                    id='prod_type2',
+                    id='prod_type_var',
                     options=["prod1","prod2","prod3"],
                     value="prod1",)
                     # md=2,
-                    ],id="container_prod_type",),
+                    ],id="container_prod_type_var",),
                 ),
                 dbc.Col(
                     html.Div([
-                    html.H6("prod_id"),
+                    html.H6("variant"),
                     dcc.Dropdown(
-                    id='prod_id',)
-                    # options=df["product_id"].unique(),
-                    # value=df["product_id"].unique()[-1]),
-                    # md=2,
-                    ],id="container_prod_id",),
+                    id='variant_id',
+                    options=["prod1","prod2","prod3"],
+                    value="prod1",
+                    )
+                    ],id="container_variant_id",),
                 ),
                 dbc.Col(
                     html.Div([
@@ -128,17 +122,17 @@ option_selected = dbc.Container([
                 ),
                 dbc.Col(
                     html.Div([
-                    html.H6(id="selected_id"),
+                    html.H6(id="selected_var"),
                     # md=2,
                     ]),width=True,
                 ),
                 
                 dbc.Col(
                     html.Div([
-                    html.H6(id="data_refresh_id"),
+                    html.H6(id="data_refresh_var"),
                     dbc.Button("Refresh Data",id="refresh_button",n_clicks=0,color="primary"),
                    
-                    dcc.Location(id='url_user2', refresh=False),
+                    dcc.Location(id='url_user_var', refresh=False),
                     # md=2,
                     ]),width=True,
                 ),
@@ -151,27 +145,27 @@ option_selected = dbc.Container([
 ###############################################################################
 #change dropdown values
 def drop_down_updater(df):
-    product_select=df["product_type"].unique()[-1]
-    product_id_select=df[df["product_type"]==product_select]["product_id"].unique()[0]
+    variant_select=df["product_type"].unique()[-1]
+    variant_id_select=df[df["product_type"]==variant_select]["variant_id"].unique()[1]
     option_selected = html.Div([
-                        html.H6("prod_type2"),
+                        html.H6("prod_type_var"),
                         dcc.Dropdown(
-                        id='prod_type2',
+                        id='prod_type_var',
                         options=df["product_type"].unique(),
-                        value=product_select),
+                        value=variant_select),
                         # md=2,
-                        ],id="container_prod_type",)
+                        ],id="container_prod_type_var",)
                   
-    
     option_selected1 = html.Div([
-                        html.H6("prod_id"),
+                        html.H6("variant"),
                         dcc.Dropdown(
-                        id='prod_id',
+                        id='variant_id',
                         options=df["variant_id"].unique(),
-                        value=product_id_select,
+                        value=variant_id_select,
                         ),
                         # md=2,
-                        ],id="container_prod_id",)
+                        ],id="container_variant_id",)
+    
 
     return option_selected,option_selected1
 
@@ -181,23 +175,25 @@ def drop_down_updater(df):
 
 #######################################################################################
 @callback(
-    Output("selected_id", "children"), 
-    Output("prod_id", "options"),
-    Input("prod_type2", "value"),
+    Output("selected_var", "children"), 
+    Output("variant_id", "options"),
+    Input("prod_type_var", "value"),
     Input("days_prev2","value"),
-    Input('store-data2', 'data'),
+    Input('store-data3', 'data'),
     )
 def revenue_tots(radio_value,days_prev2,data):
     df=data
     # df = pd.DataFrame(df)
     df=df[df["product_type"]==radio_value]
-    val=[{'label': str(i), 'value': str(i)} for i in df["product_id"].unique()]
-    output="Product Type : {}-Days Previous : {}".format(radio_value,days_prev2)
+    
+    val=[{'label': str(i), 'value': str(i)} for i in df["variant_id"].unique()]
+    print(val,flush=True)
+    output="Product Type : {}-Variant id -Days Previous : {}".format(radio_value,days_prev2)
     return output,val
 
 @callback(
-    Output("prod_id", "value"),
-    Input("prod_id", "options"), prevent_initial_call=True)
+    Output("variant_id", "value"),
+    Input("variant_id", "options"), prevent_initial_call=True)
 def set_cities_value(available_options):
     return available_options[0]['value']
 
@@ -206,17 +202,14 @@ def set_cities_value(available_options):
 
 
 @callback(
-    ServersideOutput("store-data2", "data"), 
-    Output("data_refresh_id", "children"),
-    Output("container_prod_type","children"),
-    Output("container_prod_id","children"),
-    Input("refresh_button","n_clicks"),
-    Input("url_user2","search"),
-    State('container_prod_type', 'children'),
-    State('container_prod_id', 'children'),
+    ServersideOutput("store-data3", "data"), 
+    Output("data_refresh_var", "children"),
+    Output("container_prod_type_var","children"),
+    Output("container_variant_id","children"),
+    Input("url_user_var","search"),
     State('store-data', 'data'),
     )
-def data_refresh_code(refresh_button,params,container_prod_type,container_prod_id,data2):
+def data_refresh_code(params,data2):
 
         
         df=data2
@@ -239,13 +232,13 @@ def data_refresh_code(refresh_button,params,container_prod_type,container_prod_i
 
 
 @callback(
-    Output("tot_rev2", "children"), 
-    Input("prod_type2", "value"),
-    Input("prod_id","value"),
+    Output("tot_rev_variant", "children"), 
+    Input("prod_type_var", "value"),
+    Input("variant_id","value"),
     Input("days_prev2","value"),
-    Input('store-data2', 'data'), prevent_initial_call=True
+    Input('store-data3', 'data'), prevent_initial_call=True
     )
-def revenue_tot(radio_value,prod_id,days_prev2,data):
+def revenue_tot(radio_value,variant_id,days_prev2,data):
     print("{}....".format(data),flush=True)
     df=data
     # df = pd.DataFrame(df)
@@ -253,7 +246,7 @@ def revenue_tot(radio_value,prod_id,days_prev2,data):
     total_revenue=df.copy()
     # total_revenue=pd.DataFrame(df)
     df_copys=total_revenue[(total_revenue["product_type"]==radio_value)\
-                           &(total_revenue["product_id"]==prod_id)]
+                           &(total_revenue["variant_id"]==variant_id)]
     df_copys=df_copys[df_copys["quantity"]>0]
     
     if days_prev2=='30':
@@ -282,19 +275,19 @@ def revenue_tot(radio_value,prod_id,days_prev2,data):
 
     
 @callback(
-    Output("tot_prod_id", "children"),
-    Input("prod_type2", "value"),
-    Input("prod_id","value"),
+    Output("tot_variant_id", "children"),
+    Input("prod_type_var", "value"),
+    Input("variant_id","value"),
     Input("days_prev2","value"),
-    Input('store-data2', 'data'), prevent_initial_call=True
+    Input('store-data3', 'data'), prevent_initial_call=True
     )
-def tot_prod_id(radio_value,prod_id,days_prev2,data):
+def tot_variant_id(radio_value,variant_id,days_prev2,data):
     df=data
     # df = pd.DataFrame(df)
 
     total_revenue=df.copy()
     df_copys=total_revenue[(total_revenue["product_type"]==radio_value)\
-                           &(total_revenue["product_id"]==prod_id)]
+                           &(total_revenue["variant_id"]==variant_id)]
     df_copys=df_copys[df_copys["quantity"]>0]
     
     if days_prev2=='30':
@@ -317,18 +310,18 @@ def tot_prod_id(radio_value,prod_id,days_prev2,data):
     return tot_products
         
 @callback(
-    Output("unq_sku_id", "children"),
-    Input("prod_type2", "value"),
-    Input("prod_id","value"),
+    Output("unq_sku_var", "children"),
+    Input("prod_type_var", "value"),
+    Input("variant_id","value"),
     Input("days_prev2","value"),
-    Input('store-data2', 'data'), prevent_initial_call=True
+    Input('store-data3', 'data'), prevent_initial_call=True
     )
-def tot_unq_sku(radio_value,prod_id,days_prev2,data):
+def tot_unq_sku(radio_value,variant_id,days_prev2,data):
     df=data
     total_revenue=df.copy()
     # total_revenue=pd.DataFrame(df)
     df_copys=total_revenue[(total_revenue["product_type"]==radio_value)\
-                           &(total_revenue["product_id"]==prod_id)]
+                           &(total_revenue["variant_id"]==variant_id)]
     df_copys=df_copys[df_copys["quantity"]>0]
     
     if days_prev2=='30':
@@ -364,24 +357,24 @@ layout7 = html.Div([
     html.H6("Product Sales in Category"),
     html.Button("Toggle sort",id="toggle_sort",n_clicks=0),
     html.Br(),
-    dcc.Graph(id="graph7_id")
+    dcc.Graph(id="graph7_var")
 
 ])
 
 @callback(
-    Output("graph7_id", "figure"), 
-    Input("prod_type2", "value"),
-    Input("prod_id","value"),
+    Output("graph7_var", "figure"), 
+    Input("prod_type_var", "value"),
+    Input("variant_id","value"),
     Input("days_prev2","value"),
     Input("toggle_sort","n_clicks"),  
-    Input('store-data2', 'data'), prevent_initial_call=True
+    Input('store-data3', 'data'), prevent_initial_call=True
     )
-def display_(radio_value,prod_id,day_prev,toggle,data):
+def display_(radio_value,variant_id,day_prev,toggle,data):
     dfp=data
     # dfp = pd.DataFrame(dfp)
 
     df_copy=dfp[(dfp["product_type"]==radio_value)\
-                               &(dfp["product_id"]==prod_id)].drop("product_type",1)
+                               &(dfp["variant_id"]==variant_id)].drop("product_type",1)
     df_copy=df_copy.groupby(['sku'])['quantity'].sum().reset_index()
     try:
         fig = px.bar(df_copy, y="sku", x="quantity",orientation='h',title='product_sales')
@@ -402,23 +395,23 @@ def display_(radio_value,prod_id,day_prev,toggle,data):
 
 layout6 = html.Div([
     html.Br(),    
-    dcc.Graph(id="graph6_id")
+    dcc.Graph(id="graph6_var")
 
 ])
 
 @callback(
-    Output("graph6_id", "figure"), 
-    Input("prod_type2", "value"),
-    Input("prod_id","value"),
+    Output("graph6_var", "figure"), 
+    Input("prod_type_var", "value"),
+    Input("variant_id","value"),
     Input("days_prev2","value"),
-    Input('store-data2', 'data'), prevent_initial_call=True
+    Input('store-data3', 'data'), prevent_initial_call=True
     )
-def new_customers(radio_value,prod_id,days_prev2,data):
+def new_customers(radio_value,variant_id,days_prev2,data):
     df=data
     # df = pd.DataFrame(df)
     
     df_copys=df[(df["product_type"]==radio_value)\
-                               &(df["product_id"]==prod_id)].drop("product_type",1)
+                               &(df["variant_id"]==variant_id)].drop("product_type",1)
     
     if days_prev2=='30':
         df_copy=df_copys[df_copys["less_than_30"]==1]
@@ -447,24 +440,24 @@ def new_customers(radio_value,prod_id,days_prev2,data):
 
 layout5 = html.Div([
     html.Br(),
-    dcc.Graph(id="graph5_id")
+    dcc.Graph(id="graph5_var")
 
 ])
 
 @callback(
-    Output("graph5_id", "figure"), 
-    Input("prod_type2", "value"),
-    Input("prod_id","value"),
+    Output("graph5_var", "figure"), 
+    Input("prod_type_var", "value"),
+    Input("variant_id","value"),
     Input("days_prev2","value"),
-    Input('store-data2', 'data'), prevent_initial_call=True
+    Input('store-data3', 'data'), prevent_initial_call=True
     )
-def unique_customers(radio_value,prod_id,days_prev2,data):
+def unique_customers(radio_value,variant_id,days_prev2,data):
     df=data
     # dfu = pd.DataFrame(dfu)
     
     dfu=df.copy()
     df_copys=dfu[(dfu["product_type"]==radio_value)\
-                               &(dfu["product_id"]==prod_id)].drop("product_type",1)
+                               &(dfu["variant_id"]==variant_id)].drop("product_type",1)
 
     if days_prev2=='30':
         df_copy=df_copys[df_copys["less_than_30"]==1]
@@ -498,25 +491,25 @@ layout4 = html.Div([
     html.Br(),
 
     
-    dcc.Graph(id="graph4_id")
+    dcc.Graph(id="graph4_var")
 
 ])
 
 @callback(
-    Output("graph4_id", "figure"), 
-    Input("prod_type2", "value"),
-    Input("prod_id","value"),
+    Output("graph4_var", "figure"), 
+    Input("prod_type_var", "value"),
+    Input("variant_id","value"),
     Input("days_prev2","value"),
-    Input('store-data2', 'data'), prevent_initial_call=True
+    Input('store-data3', 'data'), prevent_initial_call=True
     )
-def unique_dollar_graph(radio_value,prod_id,days_prev2,data):
+def unique_dollar_graph(radio_value,variant_id,days_prev2,data):
     
     df=data
     # df = pd.DataFrame(df)
 
     
     df_copys=df[(df["product_type"]==radio_value)\
-                               &(df["product_id"]==prod_id)].drop("product_type",1)
+                               &(df["variant_id"]==variant_id)].drop("product_type",1)
     
     if days_prev2=='30':
         df_copy=df_copys[df_copys["less_than_30"]==1]
@@ -587,24 +580,24 @@ def unique_dollar_graph(radio_value,prod_id,days_prev2,data):
 #products_per_unq_customers.py
 layout3 = html.Div([
     html.Br(),    
-    dcc.Graph(id="graph3_id")
+    dcc.Graph(id="graph3_var")
 
 ])
 
 @callback(
-    Output("graph3_id", "figure"), 
-    Input("prod_type2", "value"),
-    Input("prod_id","value"),
+    Output("graph3_var", "figure"), 
+    Input("prod_type_var", "value"),
+    Input("variant_id","value"),
     Input("days_prev2","value"),
-    Input('store-data2', 'data'), prevent_initial_call=True
+    Input('store-data3', 'data'), prevent_initial_call=True
     )
-def products_per_unq_customers(radio_value,prod_id,days_prev2,data):
+def products_per_unq_customers(radio_value,variant_id,days_prev2,data):
     df=data
     # df = pd.DataFrame(df)
 
     
     df_copys=df[(df["product_type"]==radio_value)\
-                               &(df["product_id"]==prod_id)].drop("product_type",1)
+                               &(df["variant_id"]==variant_id)].drop("product_type",1)
     
     if days_prev2=='30':
         df_copy=df_copys[df_copys["less_than_30"]==1]
@@ -649,25 +642,25 @@ layout2 = html.Div([
                value=0,
                id='mov_avg_filt'),
     
-    dcc.Graph(id="graph2_id")
+    dcc.Graph(id="graph2_var")
 
 ])
 
 @callback(
-    Output("graph2_id", "figure"), 
-    Input("prod_type2", "value"),
-    Input("prod_id","value"),
+    Output("graph2_var", "figure"), 
+    Input("prod_type_var", "value"),
+    Input("variant_id","value"),
     Input("days_prev2","value"),
     Input("mov_avg_filt","value"),
-    Input('store-data2', 'data'), prevent_initial_call=True
+    Input('store-data3', 'data'), prevent_initial_call=True
     )
-def Loess(radio_value,prod_id,days_prev2,roll,data):
+def Loess(radio_value,variant_id,days_prev2,roll,data):
     df=data
     # df = pd.DataFrame(df)
 
     
     df_copys=df[(df["product_type"]==radio_value)\
-                               &(df["product_id"]==prod_id)].drop("product_type",1)
+                               &(df["variant_id"]==variant_id)].drop("product_type",1)
     
     if days_prev2=='30':
         df_copy=df_copys[df_copys["less_than_30"]==1]
@@ -719,23 +712,23 @@ def Loess(radio_value,prod_id,days_prev2,roll,data):
 #Average_selling_price.py
 layout1 = html.Div([
     html.Br(),
-    dcc.Graph(id="graph1_id")
+    dcc.Graph(id="graph1_var")
 
 ])
 
 @callback(
-    Output("graph1_id", "figure"), 
-    Input("prod_type2", "value"),
-    Input("prod_id","value"),
+    Output("graph1_var", "figure"), 
+    Input("prod_type_var", "value"),
+    Input("variant_id","value"),
     Input("days_prev2","value"),
-    Input('store-data2', 'data'), prevent_initial_call=True
+    Input('store-data3', 'data'), prevent_initial_call=True
     )
-def avg_selling_price(radio_value,prod_id,days_prev2,data):
+def avg_selling_price(radio_value,variant_id,days_prev2,data):
     df=data
     # df = pd.DataFrame(df)
 
     df_copys=df[(df["product_type"]==radio_value)\
-                               &(df["product_id"]==prod_id)]
+                               &(df["variant_id"]==variant_id)]
     
     
     if days_prev2=='30':
