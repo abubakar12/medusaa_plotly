@@ -162,7 +162,7 @@ category_data2_id = dbc.Row(
 # Layout Creation Section
 ####################################################
 main_page_id = dbc.Container(
-    [
+    [   html.Div(dcc.Loading(dcc.Store(id="store-data2", storage_type='session'), fullscreen=True, type="dot")),
         html.Hr(),
         html.H4("Medusa Product Table", style=TEXT_STYLE),
         # html.Hr(),
@@ -222,17 +222,13 @@ main_page = dbc.Container(
 #############################################################################
 # Application parameters
 #############################################################################
-# app = dash.Dash(
-#     __name__,
-#     suppress_callback_exceptions=True,
-#     external_stylesheets=[dbc.themes.CYBORG],
-# )
+
 app = DashProxy(__name__,transforms=[ServersideOutputTransform()],\
                 external_stylesheets=[dbc.themes.CYBORG],suppress_callback_exceptions=True,)
-# app.config.suppress_callback_exceptions = True
 app.title = "Shopify Data Analysis"
 app.layout = html.Div(
-    [dcc.Location(id="url", refresh=False), html.Div(id="page-content")]
+    [dcc.Store(id='store-data', data=[1,2,3,4], storage_type='session'),
+     dcc.Location(id="url", refresh=False), html.Div(id="page-content")]
 )
 
 # Multi-page selector callback - not really used, but left in for future use
@@ -252,5 +248,5 @@ def display_page(pathname):
 if __name__ == "__main__":
 
     app.run_server(
-   debug=False,port=6204
+   debug=True,port=6204
       )
