@@ -388,6 +388,7 @@ def display_(radio_value,variant_id,day_prev,toggle,data):
     return fig
 
 
+<<<<<<< HEAD
 ##############################################################################################
 #product_sales.py
 
@@ -450,6 +451,8 @@ def variant_percent(radio_value,variant_id,days_prev2,data):
     fig=fig.update_layout(template="plotly_dark",uniformtext_mode='hide')
     return fig
 
+=======
+>>>>>>> c9713e7ef9f6e4f87027f0fe5fc820f91db233ba
 ##########################################################################################
 #new_customers.py
 

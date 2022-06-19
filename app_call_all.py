@@ -237,6 +237,7 @@ basic_data_var = dbc.Row(
         dbc.Col(
             call_backs_all_for_Variant.layout1,
             
+<<<<<<< HEAD
             md=6,
         ),
         
@@ -244,6 +245,9 @@ basic_data_var = dbc.Row(
             call_backs_all_for_Variant.var_percent_sales,
             
             md=6,
+=======
+            md=12,
+>>>>>>> c9713e7ef9f6e4f87027f0fe5fc820f91db233ba
         ),
     ]
 )

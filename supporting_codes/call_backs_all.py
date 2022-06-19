@@ -224,11 +224,22 @@ def data_refresh_code(refresh_button,params):
     # print(client_id)
     link=f"/prod_id_page/?client_id={encrypted_client_id}"
     linking=html.Div(dcc.Link('Product_id page', href=link))
+<<<<<<< HEAD
 
     
 
     tableau_file=pd.read_sql(f"select Date,CustomerID,product_type,quantity,amount,price,product_id,variant_id,sku from salesanalytics where cid = {client_id}",engine)
 
+=======
+    
+
+    tableau_file=pd.read_sql(f"select Date,CustomerID,product_type,quantity,amount,price,product_id,variant_id,sku from salesanalytics where cid = {client_id}",engine)
+    
+
+    
+    
+    
+>>>>>>> c9713e7ef9f6e4f87027f0fe5fc820f91db233ba
     max_date=tableau_file[tableau_file["quantity"].notnull()]["Date"].max()
     max_date=pd.to_datetime(max_date).date()
     # max_date=date.today()
@@ -237,7 +248,10 @@ def data_refresh_code(refresh_button,params):
     df["CustomerID"]=df["CustomerID"].astype(str)
     df["product_id"]=df["product_id"].astype(str)
     df["variant_id"]=df["variant_id"].astype(str)
+<<<<<<< HEAD
 
+=======
+>>>>>>> c9713e7ef9f6e4f87027f0fe5fc820f91db233ba
     
     df["Date"]=pd.to_datetime(df["Date"],format="%Y-%m-%d")
     
@@ -277,6 +291,11 @@ def data_refresh_code(refresh_button,params):
 
     
     layout_update=drop_down_updater(df)
+<<<<<<< HEAD
+=======
+    
+    return df,"Refreshed Date : {}".format(datetime.datetime.now().strftime('%y-%m-%d %a %H:%M:%S')),layout_update
+>>>>>>> c9713e7ef9f6e4f87027f0fe5fc820f91db233ba
     
 
     return df,"Refreshed Date : {}".format(datetime.datetime.now().strftime('%y-%m-%d %a %H:%M:%S')),layout_update
@@ -443,12 +462,17 @@ layout7 = html.Div([
     html.H6("Product Sales in Category"),
     html.Button("Toggle sort",id="toggle_sort",n_clicks=0),
     html.Br(),
+<<<<<<< HEAD
 
     html.Div(dcc.Graph(id="graph7",style={'overflowY': 'scroll', 'height':500})),
 ],)
 
 
 
+=======
+    html.Div(dcc.Graph(id="graph7",style={'overflowY': 'scroll', 'height':500})),
+],)
+>>>>>>> c9713e7ef9f6e4f87027f0fe5fc820f91db233ba
 
 @callback(
     Output("graph7", "figure"), 
