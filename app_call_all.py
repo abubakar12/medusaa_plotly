@@ -7,6 +7,7 @@ from dash_extensions.enrich import DashProxy, Output, Input, State, ServersideOu
 import dash_bootstrap_components as dbc
 from supporting_codes import call_backs_all
 from supporting_codes import call_backs_all_for_prodid
+from supporting_codes import call_backs_all_for_Variant
 import plotly.io as pio
 plotly_template = pio.templates["plotly_dark"]
 plotly_template.layout
@@ -187,6 +188,8 @@ main_page_id = dbc.Container(
     style=CONTENT_STYLE,
 )
 
+
+
 #############################################################################
 
 
@@ -219,6 +222,103 @@ main_page = dbc.Container(
     style=CONTENT_STYLE,
 )
 
+
+#####################################################Variant _age#######################################
+#############################################################################
+# Content prod_id
+#############################################################################
+# Create drop-down selector and initial date picker
+
+filter_bar_var = call_backs_all_for_Variant.option_selected
+
+# # Container for raw data charts
+basic_data_var = dbc.Row(
+    [
+        dbc.Col(
+            call_backs_all_for_Variant.layout1,
+            
+            md=6,
+        ),
+        
+        dbc.Col(
+            call_backs_all_for_Variant.var_percent_sales,
+            
+            md=6,
+        ),
+    ]
+)
+
+# Container for periodic charts
+baseline_data_var = dbc.Row(
+    [
+        dbc.Col(
+            call_backs_all_for_Variant.layout2,
+            md=6,
+        ),
+        dbc.Col(
+            call_backs_all_for_Variant.layout7,
+            md=6,
+        ),
+    ]
+)
+
+# Container for category survey charts
+category_data_var = dbc.Row(
+    [
+        dbc.Col(
+            call_backs_all_for_Variant.layout6,
+            md=6,
+        ),
+        dbc.Col(
+            call_backs_all_for_Variant.layout3,
+            md=6,
+        ),
+    ]
+)
+
+category_data2_var = dbc.Row(
+    [
+        dbc.Col(
+            call_backs_all_for_Variant.layout5,
+            md=6,
+        ),
+        dbc.Col(
+            call_backs_all_for_Variant.layout4,
+            md=6,
+        ),
+    ]
+)
+
+
+####################################################
+# Layout Creation Section
+####################################################
+main_page_var = dbc.Container(
+    [   html.Div(dcc.Loading(dcc.Store(id="store-data2", storage_type='session'), fullscreen=True, type="dot")),
+        html.Div(dcc.Loading(dcc.Store(id="store-data3", storage_type='session'), fullscreen=True, type="dot")),
+        html.Hr(),
+        html.H4("Medusa Product Table", style=TEXT_STYLE),
+        # html.Hr(),
+        # html.Hr(),
+        # info_bar,
+        html.Hr(),
+        html.H4("Options Selected ", style=TEXT_STYLE),
+        html.Hr(),
+        filter_bar_var,
+        html.Hr(),
+        basic_data_var,
+        html.Hr(),
+        baseline_data_var,
+        html.Hr(),
+        # html.H5("Comparison of Data in Broad Category", style=TEXT_STYLE),
+        html.Hr(),
+        category_data_var,
+        html.Hr(),
+        category_data2_var,
+        html.Hr(),
+    ],
+    style=CONTENT_STYLE,
+)
 #############################################################################
 # Application parameters
 #############################################################################
@@ -238,6 +338,8 @@ def display_page(pathname):
     # link=f"/prod_id_page/?client_id={}"
     if pathname == "/prod_id_page/":
         return main_page_id
+    elif pathname == "/variant_id_page/":
+        return  main_page_var
     else:
         return main_page
 
