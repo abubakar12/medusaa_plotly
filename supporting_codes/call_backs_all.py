@@ -18,6 +18,7 @@ import base64
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad,unpad
 import dask.dataframe as dd
+<<<<<<< HEAD
 from pandarallel import pandarallel
 from dash.exceptions import PreventUpdate
 import dash
@@ -34,6 +35,8 @@ pandarallel.initialize()
 
 
 
+=======
+>>>>>>> 79d96f782ee434188c7de23372bb2979e0bd437d
 
 def decrypt(enc):
         key = '!!!!kfk9072p!!!!' #16 char for AES128
@@ -162,18 +165,31 @@ option_selected = dbc.Container([
                 dbc.Col(
                     html.Div([
                     html.H6(id="data_refresh"),
+<<<<<<< HEAD
                     dbc.Button("Refresh Data",id="refresh_button",n_clicks=None,color="primary"),
                     # dcc.Store(id='store-data', data=[1,2,3,4], storage_type='session'),
                     # dcc.Location(id='url_user', refresh=False),
+=======
+                    dbc.Button("Refresh Data",id="refresh_button",n_clicks=0,color="primary"),
+                    # dcc.Store(id='store-data', data=[1,2,3,4], storage_type='session'),
+                    dcc.Location(id='url_user', refresh=False),
+>>>>>>> 79d96f782ee434188c7de23372bb2979e0bd437d
         
                     # md=2,
                     ]),width=True,
                 ),
             ]
         ),
+<<<<<<< HEAD
         # dbc.Row([html.Div(dcc.Link('Product_id page', href="/prod_id_page/")),
         #           html.Br(),
         #           html.Div(dcc.Link('Variant page', href="/variant_id_page/"))],id="basic_div")
+=======
+        dbc.Row([html.Div(dcc.Link('Product_id page', href="/prod_id_page/")),
+                  html.Br(),
+                  html.Div(dcc.Link('Variant page', href="/variant_id_page/"))],id="basic_div")
+        # dbc.Row(id="basic_div")
+>>>>>>> 79d96f782ee434188c7de23372bb2979e0bd437d
         
         ],fluid=True,
 )
@@ -215,6 +231,7 @@ def revenue_tots(radio_value,days_prev):
     ServersideOutput("store-data", "data"), 
     Output("data_refresh", "children"),
     Output("container","children"),
+<<<<<<< HEAD
     Output("client-id-store","data"),
     Input("refresh_button","n_clicks"),
     State("url","search"),
@@ -333,6 +350,100 @@ def data_refresh_code(refresh_button,params,client_id_store,df):
         layout_update=drop_down_updater(df)
         return df,"Refreshed Date : {}".format(datetime.datetime.now().strftime('%y-%m-%d %a %H:%M:%S')),layout_update,client_id
         
+
+=======
+    # Output("basic_div","children"),
+    Input("refresh_button","n_clicks"),
+    Input("url_user","search"),
+    )
+def data_refresh_code(refresh_button,params):
+    # params = '?client_id=+iDjnF5YnfqX55p1WL0ECQ=='
+    parsed = urllib.parse.urlparse(params)
+    parsed_dict = parsed.query
+    
+    encrypted_client_id=parsed_dict.replace('client_id=',"")
+    decrypted = decrypt(encrypted_client_id)
+    client_id = int(decrypted.decode("utf-8", "ignore"))
+    # print(client_id)
+    link=f"/prod_id_page/?client_id={encrypted_client_id}"
+    linking=html.Div(dcc.Link('Product_id page', href=link))
+<<<<<<< HEAD
+
+    
+
+    tableau_file=pd.read_sql(f"select Date,CustomerID,product_type,quantity,amount,price,product_id,variant_id,sku from salesanalytics where cid = {client_id}",engine)
+
+=======
+    
+
+    tableau_file=pd.read_sql(f"select Date,CustomerID,product_type,quantity,amount,price,product_id,variant_id,sku from salesanalytics where cid = {client_id}",engine)
+    
+
+    
+    
+    
+>>>>>>> c9713e7ef9f6e4f87027f0fe5fc820f91db233ba
+    max_date=tableau_file[tableau_file["quantity"].notnull()]["Date"].max()
+    max_date=pd.to_datetime(max_date).date()
+    # max_date=date.today()
+    df = tableau_file.copy()  # iris is a pandas DataFrame
+    df["product_type"]=df["product_type"].astype(str)
+    df["CustomerID"]=df["CustomerID"].astype(str)
+    df["product_id"]=df["product_id"].astype(str)
+    df["variant_id"]=df["variant_id"].astype(str)
+<<<<<<< HEAD
+
+=======
+>>>>>>> c9713e7ef9f6e4f87027f0fe5fc820f91db233ba
+    
+    df["Date"]=pd.to_datetime(df["Date"],format="%Y-%m-%d")
+    
+    
+    ############################################for New customer############################
+    less_than_30=max_date- timedelta(days=30)
+    less_than_60=max_date- timedelta(days=60)
+    less_than_90=max_date- timedelta(days=90)
+    df["less_than_30"]=0
+    df["less_than_60"]=0
+    df["less_than_90"]=0
+    df.loc[df["Date"]>=pd.to_datetime(less_than_30),"less_than_30"]=1
+    df.loc[df["Date"]>=pd.to_datetime(less_than_60),"less_than_60"]=1
+    df.loc[df["Date"]>=pd.to_datetime(less_than_90),"less_than_90"]=1
+    
+    
+    
+    df["Date"]=df["Date"].dt.strftime('%d/%b/%y')#output
+    
+    first_date=df.groupby(["CustomerID"]).first().reset_index()
+    first_date=first_date[["Date","CustomerID"]]
+    first_date['CustomerID']=first_date['CustomerID'].replace('nan',np.nan)
+    first_date = first_date[first_date['CustomerID'].notna()]
+    first_date["total_customers"]=first_date.groupby(["Date"])["CustomerID"].transform(lambda x:x.count())
+    first_date=first_date.drop_duplicates(subset="Date").drop(["CustomerID"],axis=1)
+    
+    
+    
+    df=pd.merge(df,first_date,on=["Date"],how="left")
+    
+    ############################################for New customer############################
+    
+
+
+    
+    
+
+    
+    layout_update=drop_down_updater(df)
+<<<<<<< HEAD
+=======
+    
+    return df,"Refreshed Date : {}".format(datetime.datetime.now().strftime('%y-%m-%d %a %H:%M:%S')),layout_update
+>>>>>>> c9713e7ef9f6e4f87027f0fe5fc820f91db233ba
+    
+>>>>>>> 79d96f782ee434188c7de23372bb2979e0bd437d
+
+    return df,"Refreshed Date : {}".format(datetime.datetime.now().strftime('%y-%m-%d %a %H:%M:%S')),layout_update
+
 
 
        
@@ -495,12 +606,23 @@ layout7 = html.Div([
     html.H6("Product Sales in Category"),
     html.Button("Toggle sort",id="toggle_sort",n_clicks=0),
     html.Br(),
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 79d96f782ee434188c7de23372bb2979e0bd437d
 
     html.Div(dcc.Graph(id="graph7",style={'overflowY': 'scroll', 'height':500})),
 ],)
 
 
 
+<<<<<<< HEAD
+=======
+=======
+    html.Div(dcc.Graph(id="graph7",style={'overflowY': 'scroll', 'height':500})),
+],)
+>>>>>>> c9713e7ef9f6e4f87027f0fe5fc820f91db233ba
+>>>>>>> 79d96f782ee434188c7de23372bb2979e0bd437d
 
 @callback(
     Output("graph7", "figure"), 

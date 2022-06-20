@@ -168,7 +168,7 @@ category_data2_id = dbc.Row(
 # Layout Creation Section
 ####################################################
 main_page_id = dbc.Container(
-    [
+    [   html.Div(dcc.Loading(dcc.Store(id="store-data2", storage_type='session'), fullscreen=True, type="dot")),
         html.Hr(),
         html.H4("Medusa Product Table", style=TEXT_STYLE),
         # html.Hr(),
@@ -242,6 +242,10 @@ basic_data_var = dbc.Row(
         dbc.Col(
             call_backs_all_for_Variant.layout1,
             
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 79d96f782ee434188c7de23372bb2979e0bd437d
             md=6,
         ),
         
@@ -249,6 +253,12 @@ basic_data_var = dbc.Row(
             call_backs_all_for_Variant.var_percent_sales,
             
             md=6,
+<<<<<<< HEAD
+=======
+=======
+            md=12,
+>>>>>>> c9713e7ef9f6e4f87027f0fe5fc820f91db233ba
+>>>>>>> 79d96f782ee434188c7de23372bb2979e0bd437d
         ),
     ]
 )
@@ -299,7 +309,12 @@ category_data2_var = dbc.Row(
 # Layout Creation Section
 ####################################################
 main_page_var = dbc.Container(
+<<<<<<< HEAD
     [   
+=======
+    [   html.Div(dcc.Loading(dcc.Store(id="store-data2", storage_type='session'), fullscreen=True, type="dot")),
+        html.Div(dcc.Loading(dcc.Store(id="store-data3", storage_type='session'), fullscreen=True, type="dot")),
+>>>>>>> 79d96f782ee434188c7de23372bb2979e0bd437d
         html.Hr(),
         html.H4("Medusa Product Table", style=TEXT_STYLE),
         # html.Hr(),
@@ -326,12 +341,17 @@ main_page_var = dbc.Container(
 #############################################################################
 # Application parameters
 #############################################################################
+<<<<<<< HEAD
 style_link={ "width":"300px","margin": "0 auto","font-size": "1.2rem","font-family": "sans-serif",\
             "color":"white","border-style": "solid",}
+=======
+
+>>>>>>> 79d96f782ee434188c7de23372bb2979e0bd437d
 app = DashProxy(__name__,transforms=[ServersideOutputTransform()],\
                 external_stylesheets=[dbc.themes.CYBORG],suppress_callback_exceptions=True,)
 app.title = "Shopify Data Analysis"
 app.layout = html.Div(
+<<<<<<< HEAD
     [dcc.Store(id='store-data',storage_type='session'),
      dcc.Store(id='client-id-store', storage_type='session'),
      dcc.Store(id="store-data2", storage_type='session'),
@@ -342,6 +362,10 @@ app.layout = html.Div(
              dbc.Col(dbc.Alert(dcc.Link('Variant page', href="/variant_id_page/",className="alert-link")))]),
      dbc.Row(html.Div(id="page-content"),)
      ]
+=======
+    [dcc.Store(id='store-data', data=[1,2,3,4], storage_type='session'),
+     dcc.Location(id="url", refresh=False), html.Div(id="page-content")]
+>>>>>>> 79d96f782ee434188c7de23372bb2979e0bd437d
 )
 
 # Multi-page selector callback - not really used, but left in for future use
@@ -364,5 +388,9 @@ app.config['suppress_callback_exceptions'] = True
 if __name__ == "__main__":
 
     app.run_server(
+<<<<<<< HEAD
    debug=True,port=6504
+=======
+   debug=True,port=6204
+>>>>>>> 79d96f782ee434188c7de23372bb2979e0bd437d
       )
