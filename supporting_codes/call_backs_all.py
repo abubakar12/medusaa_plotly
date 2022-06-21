@@ -13,7 +13,7 @@ import numpy as np
 import urllib.parse
 import urllib
 import dash_bootstrap_components as dbc
-import sqlalchemy
+# import sqlalchemy
 import base64 
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad,unpad
@@ -21,7 +21,6 @@ from Crypto.Util.Padding import pad,unpad
 # from pandarallel import pandarallel
 from dash.exceptions import PreventUpdate
 import dash
-import pyodbc
 # pandarallel.initialize()
 # df_size = int(5e6)
 # df = pd.DataFrame(dict(a=np.random.randint(1, 8, df_size),
@@ -65,21 +64,22 @@ params =urllib.parse.quote_plus('Driver={ODBC Driver 13 for SQL Server};'
                                 'Encrypt=yes;'
                                 'TrustServerCertificate=no;'
                                 'Connection Timeout=30;')
-conn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER=shopifyai.database.windows.net;DATABASE=ShopifyAI;UID=aiadmin;PWD=kfk9072p!')
+# conn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER=shopifyai.database.windows.net;DATABASE=ShopifyAI;UID=aiadmin;PWD=kfk9072p!')
 # engine = sqlalchemy.create_engine("mssql:///?odbc_connect={}".format(params))
 
 
 client_id=100
 
-# import connectorx as cx
-# import multiprocessing
+import connectorx as cx
+import multiprocessing
 
-# multiprocessing.cpu_count()
-# import time
-# q_crash = f"select Date,CustomerID,product_type,quantity,amount,price,product_id,sku from salesanalytics where cid = {client_id}"       
-# conn = 'mssql://aiadmin:kfk9072p!@shopifyai.database.windows.net:1433/ShopifyAI?encrypt=true&trusted_connection=false' 
+multiprocessing.cpu_count()
+import time
+client_id=100
+     
+conn = 'mssql://aiadmin:kfk9072p!@shopifyai.database.windows.net:1433/ShopifyAI?encrypt=true&trusted_connection=false' 
 # start_time = time.time()
-# crash = cx.read_sql(conn,q_crash,partition_on="CustomerID", partition_num=56)
+
 # crash = cx.read_sql(conn,q_crash)
 # print('Read_sql time for table 1: {:.1f}'.format(time.time() - start_time))
 # start_time = time.time()
@@ -234,7 +234,10 @@ def data_refresh_code(refresh_button,params,client_id_store,df):
         client_id = int(decrypted.decode("utf-8", "ignore"))
         
     
-        tableau_file=pd.read_sql(f"select Date,CustomerID,product_type,quantity,amount,price,product_id,variant_id,sku from salesanalytics where cid = {client_id} and quantity IS NOT NULL",conn)
+        # tableau_file=pd.read_sql(f"select Date,CustomerID,product_type,quantity,amount,price,product_id,variant_id,sku from salesanalytics where cid = {client_id} and quantity IS NOT NULL",conn)
+        q_crash = f"select Date,CustomerID,product_type,quantity,amount,price,product_id,variant_id,sku from salesanalytics where cid = {client_id} and quantity IS NOT NULL"
+        tableau_file = cx.read_sql(conn,q_crash)
+        
         
         max_date=tableau_file[tableau_file["quantity"].notnull()]["Date"].max()
         max_date=pd.to_datetime(max_date).date()
@@ -283,8 +286,9 @@ def data_refresh_code(refresh_button,params,client_id_store,df):
     elif  (refresh_button!=None)&("client_id" not in params):
 
         client_id = client_id_store
-        tableau_file=pd.read_sql(f"select Date,CustomerID,product_type,quantity,amount,price,product_id,variant_id,sku from salesanalytics where cid = {client_id}",engine)
-    
+        # tableau_file=pd.read_sql(f"select Date,CustomerID,product_type,quantity,amount,price,product_id,variant_id,sku from salesanalytics where cid = {client_id}",engine)
+        q_crash = f"select Date,CustomerID,product_type,quantity,amount,price,product_id,variant_id,sku from salesanalytics where cid = {client_id} and quantity IS NOT NULL"
+        tableau_file = cx.read_sql(conn,q_crash)
         max_date=tableau_file[tableau_file["quantity"].notnull()]["Date"].max()
         max_date=pd.to_datetime(max_date).date()
         # max_date=date.today()

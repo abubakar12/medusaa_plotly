@@ -13,7 +13,7 @@ import numpy as np
 import urllib.parse
 import urllib
 import dash_bootstrap_components as dbc
-import sqlalchemy
+# import sqlalchemy
 import base64 
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad,unpad
