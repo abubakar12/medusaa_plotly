@@ -31,14 +31,14 @@ def decrypt(enc):
     
 # link=f"/variant_id_page/?client_id={encrypt(data)}"
 
-params =urllib.parse.quote_plus('Driver={ODBC Driver 13 for SQL Server};'
-                                'Server=tcp:shopifyai.database.windows.net,1433;'
-                                'Database=ShopifyAI;'
-                                'Uid=aiadmin;Pwd=kfk9072p!;'
-                                'Encrypt=yes;'
-                                'TrustServerCertificate=no;'
-                                'Connection Timeout=30;')
-engine = sqlalchemy.create_engine("mssql+pyodbc:///?odbc_connect={}".format(params))
+# params =urllib.parse.quote_plus('Driver={ODBC Driver 13 for SQL Server};'
+#                                 'Server=tcp:shopifyai.database.windows.net,1433;'
+#                                 'Database=ShopifyAI;'
+#                                 'Uid=aiadmin;Pwd=kfk9072p!;'
+#                                 'Encrypt=yes;'
+#                                 'TrustServerCertificate=no;'
+#                                 'Connection Timeout=30;')
+# engine = sqlalchemy.create_engine("mssql+pyodbc:///?odbc_connect={}".format(params))
 
 client_id=50
 # tableau_file=pd.read_sql(f"select Date,CustomerID,product_type,quantity,amount,price,variant_id,sku from salesanalytics where cid = {client_id}",engine)

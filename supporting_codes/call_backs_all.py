@@ -21,6 +21,7 @@ from Crypto.Util.Padding import pad,unpad
 # from pandarallel import pandarallel
 from dash.exceptions import PreventUpdate
 import dash
+import pyodbc
 # pandarallel.initialize()
 # df_size = int(5e6)
 # df = pd.DataFrame(dict(a=np.random.randint(1, 8, df_size),
