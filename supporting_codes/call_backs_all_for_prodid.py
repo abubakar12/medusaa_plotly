@@ -138,11 +138,7 @@ option_selected = dbc.Container([
                     html.H6(id="data_refresh_id"),
                     dbc.Button("Refresh Data",id="refresh_button",n_clicks=0,color="primary"),
                    
-<<<<<<< HEAD
                     # dcc.Location(id='url_user2', refresh=False),
-=======
-                    dcc.Location(id='url_user2', refresh=False),
->>>>>>> 79d96f782ee434188c7de23372bb2979e0bd437d
                     # md=2,
                     ]),width=True,
                 ),
@@ -457,12 +453,8 @@ def variant_percent(radio_value,days_prev2,data):
         fig = px.pie(df_copy, values='%_sales', names='product_id', title='% product id  sales')
     except:
         fig = px.pie(df_copy, values='%_sales', names='product_id', title='% product id  sales')
-<<<<<<< HEAD
     fig=fig.update_traces(textposition='inside')
     fig=fig.update_layout(template="plotly_dark",uniformtext_mode='hide')
-=======
-    fig=fig.update_layout(template="plotly_dark")
->>>>>>> 79d96f782ee434188c7de23372bb2979e0bd437d
     return fig
 
 ##########################################################################################

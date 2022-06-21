@@ -132,22 +132,15 @@ option_selected = dbc.Container([
                     html.H6(id="data_refresh_var"),
                     dbc.Button("Refresh Data",id="refresh_button",n_clicks=0,color="primary"),
                    
-<<<<<<< HEAD
                     # dcc.Location(id='url_user_var', refresh=False),
-=======
-                    dcc.Location(id='url_user_var', refresh=False),
->>>>>>> 79d96f782ee434188c7de23372bb2979e0bd437d
                     # md=2,
                     ]),width=True,
                 ),
             ]
         ),
-<<<<<<< HEAD
         # dbc.Row([html.Div(dcc.Link('Product_type page', href="/prod_type_page/")),
         #           html.Br(),
         #           html.Div(dcc.Link('Product_id page', href="/product_id_page/"))],id="basic_div_3")
-=======
->>>>>>> 79d96f782ee434188c7de23372bb2979e0bd437d
         # dbc.Row(html.Div(dcc.Link('Category', href='/Category_page'))),
         ],fluid=True,
 )
@@ -216,11 +209,7 @@ def set_cities_value(available_options):
     Output("data_refresh_var", "children"),
     Output("container_prod_type_var","children"),
     Output("container_variant_id","children"),
-<<<<<<< HEAD
     Input("url","search"),
-=======
-    Input("url_user_var","search"),
->>>>>>> 79d96f782ee434188c7de23372bb2979e0bd437d
     State('store-data', 'data'),
     )
 def data_refresh_code(params,data2):
@@ -402,10 +391,6 @@ def display_(radio_value,variant_id,day_prev,toggle,data):
     return fig
 
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> 79d96f782ee434188c7de23372bb2979e0bd437d
 ##############################################################################################
 #product_sales.py
 
@@ -468,11 +453,6 @@ def variant_percent(radio_value,variant_id,days_prev2,data):
     fig=fig.update_layout(template="plotly_dark",uniformtext_mode='hide')
     return fig
 
-<<<<<<< HEAD
-=======
-=======
->>>>>>> c9713e7ef9f6e4f87027f0fe5fc820f91db233ba
->>>>>>> 79d96f782ee434188c7de23372bb2979e0bd437d
 ##########################################################################################
 #new_customers.py
 
