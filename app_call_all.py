@@ -330,6 +330,7 @@ style_link={ "width":"300px","margin": "0 auto","font-size": "1.2rem","font-fami
             "color":"white","border-style": "solid",}
 app = DashProxy(__name__,transforms=[ServersideOutputTransform()],\
                 external_stylesheets=[dbc.themes.CYBORG],suppress_callback_exceptions=True,)
+server = app.server
 app.title = "Shopify Data Analysis"
 app.layout = html.Div(
     [dcc.Store(id='store-data',storage_type='session'),
@@ -361,8 +362,5 @@ def display_page(pathname):
 # Server Run
 ###################################################
 app.config['suppress_callback_exceptions'] = True
-if __name__ == "__main__":
-
-    app.run_server(
-   debug=True
-      )
+if __name__ == '__main__':
+    app.run_server(debug=True)
