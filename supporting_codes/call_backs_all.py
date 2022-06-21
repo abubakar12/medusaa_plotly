@@ -64,8 +64,8 @@ params =urllib.parse.quote_plus('Driver={ODBC Driver 13 for SQL Server};'
                                 'Encrypt=yes;'
                                 'TrustServerCertificate=no;'
                                 'Connection Timeout=30;')
-# conn = pyodbc.connect('DRIVER={SQL Server};SERVER=yourserver.yourcompany.com;DATABASE=yourdb;UID=user;PWD=password')
-engine = sqlalchemy.create_engine("mssql:///?odbc_connect={}".format(params))
+conn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER=shopifyai.database.windows.net;DATABASE=ShopifyAI;UID=aiadmin;PWD=kfk9072p!')
+# engine = sqlalchemy.create_engine("mssql:///?odbc_connect={}".format(params))
 
 
 client_id=100
@@ -233,7 +233,7 @@ def data_refresh_code(refresh_button,params,client_id_store,df):
         client_id = int(decrypted.decode("utf-8", "ignore"))
         
     
-        tableau_file=pd.read_sql(f"select Date,CustomerID,product_type,quantity,amount,price,product_id,variant_id,sku from salesanalytics where cid = {client_id} and quantity IS NOT NULL",engine)
+        tableau_file=pd.read_sql(f"select Date,CustomerID,product_type,quantity,amount,price,product_id,variant_id,sku from salesanalytics where cid = {client_id} and quantity IS NOT NULL",conn)
         
         max_date=tableau_file[tableau_file["quantity"].notnull()]["Date"].max()
         max_date=pd.to_datetime(max_date).date()
