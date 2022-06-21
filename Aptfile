@@ -1,4 +1,4 @@
 unixodbc
 unixodbc-dev
---allow-external pyodbc pyodbc
+pyodbc
 libsqliteodbc
