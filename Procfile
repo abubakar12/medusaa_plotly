@@ -1,0 +1,1 @@
+web: gunicorn app_call_all:server

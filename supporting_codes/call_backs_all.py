@@ -17,11 +17,11 @@ import sqlalchemy
 import base64 
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad,unpad
-import dask.dataframe as dd
-from pandarallel import pandarallel
+# import dask.dataframe as dd
+# from pandarallel import pandarallel
 from dash.exceptions import PreventUpdate
 import dash
-pandarallel.initialize()
+# pandarallel.initialize()
 # df_size = int(5e6)
 # df = pd.DataFrame(dict(a=np.random.randint(1, 8, df_size),
 #                        ))
@@ -232,8 +232,8 @@ def data_refresh_code(refresh_button,params,client_id_store,df):
         client_id = int(decrypted.decode("utf-8", "ignore"))
         
     
-        tableau_file=pd.read_sql(f"select Date,CustomerID,product_type,quantity,amount,price,product_id,variant_id,sku from salesanalytics where cid = {client_id}",engine)
-    
+        tableau_file=pd.read_sql(f"select Date,CustomerID,product_type,quantity,amount,price,product_id,variant_id,sku from salesanalytics where cid = {client_id} and quantity IS NOT NULL",engine)
+        
         max_date=tableau_file[tableau_file["quantity"].notnull()]["Date"].max()
         max_date=pd.to_datetime(max_date).date()
         # max_date=date.today()
