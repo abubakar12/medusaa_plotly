@@ -64,6 +64,7 @@ params =urllib.parse.quote_plus('Driver={ODBC Driver 13 for SQL Server};'
                                 'Encrypt=yes;'
                                 'TrustServerCertificate=no;'
                                 'Connection Timeout=30;')
+# conn = pyodbc.connect('DRIVER={SQL Server};SERVER=yourserver.yourcompany.com;DATABASE=yourdb;UID=user;PWD=password')
 engine = sqlalchemy.create_engine("mssql:///?odbc_connect={}".format(params))
 
 
