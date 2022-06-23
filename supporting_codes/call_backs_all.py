@@ -234,7 +234,7 @@ def data_refresh_code(refresh_button,params,client_id_store,df):
         client_id = int(decrypted.decode("utf-8", "ignore"))
         
     
-        # tableau_file=pd.read_sql(f"select Date,CustomerID,product_type,quantity,amount,price,product_id,variant_id,sku from salesanalytics where cid = {client_id} and quantity IS NOT NULL",conn)
+        # tableau_file=pd.read_sql(f"select Date,CustomerID,product_type,quantity,amount,price,product_id,variant_id,sku from salesanalytics where cid = {client_id} and quantity IS NOT NULL",engine)
         q_crash = f"select Date,CustomerID,product_type,quantity,amount,price,product_id,variant_id,sku from salesanalytics where cid = {client_id} and quantity IS NOT NULL"
         tableau_file = cx.read_sql(conn,q_crash)
         
@@ -337,6 +337,7 @@ def data_refresh_code(refresh_button,params,client_id_store,df):
         client_id = client_id_store
         print("params .. {} ".format(params),flush=True)
         layout_update=drop_down_updater(df)
+        
         return df,"Refreshed Date : {}".format(datetime.datetime.now().strftime('%y-%m-%d %a %H:%M:%S')),layout_update,client_id
         
 
@@ -781,6 +782,9 @@ def products_per_unq_customers(radio_value,days_prev,data):
         fig = px.bar(df_copy, y="avg_product_per_customer", x="CustomerID",title="products_per_unq_customers")
     except:
         fig = px.bar(df_copy, y="avg_product_per_customer", x="CustomerID",title="products_per_unq_customers")
+    
+
+        
     fig=fig.update_layout(template="plotly_dark")
     return fig
 ###################################################################################################
@@ -845,13 +849,30 @@ def Loess(radio_value,days_prev,roll,data):
         df_copy["MAF"]=df_copy['count_orders'].rolling(window=roll).mean()
 
     
-    melted_df=df_copy.melt(id_vars=['Date'],value_vars=["count_orders",'MAF'],var_name='variables',value_name='plot_values').\
-        reset_index()
-    # melted_df["Date"]=melted_df["Date"].dt.strftime('%d/%b/%y') 
+    # melted_df=df_copy.melt(id_vars=['Date'],value_vars=["count_orders",'MAF'],var_name='variables',value_name='plot_values').\
+    #     reset_index()
+    # # melted_df["Date"]=melted_df["Date"].dt.strftime('%d/%b/%y') 
+    # try:
+    #     fig = px.line(melted_df, y=melted_df["plot_values"], x=melted_df["Date"], color='variables',title="Count_and_MAF",markers=True)
+    # except:
+    #     fig = px.line(melted_df, y=melted_df["plot_values"], x=melted_df["Date"], color='variables',title="Count_and_MAF",markers=True)
+    # fig=fig.update_layout(template="plotly_dark")
+    fig = go.Figure()
     try:
-        fig = px.line(melted_df, y=melted_df["plot_values"], x=melted_df["Date"], color='variables',title="Count_and_MAF",markers=True)
+        fig.add_trace(go.Scatter(x=df_copy["Date"], y=df_copy["count_orders"],
+                            mode='lines',
+                            name='count_orders'))
+        fig.add_trace(go.Scatter(x=df_copy["Date"], y=df_copy["MAF"],
+                            mode='lines',
+                            name='MAF'))
     except:
-        fig = px.line(melted_df, y=melted_df["plot_values"], x=melted_df["Date"], color='variables',title="Count_and_MAF",markers=True)
+        fig.add_trace(go.Scatter(x=df_copy["Date"], y=df_copy["count_orders"],
+                            mode='lines',
+                            name='count_orders'))
+        fig.add_trace(go.Scatter(x=df_copy["Date"], y=df_copy["MAF"],
+                            mode='lines',
+                            name='MAF'))
+        
     fig=fig.update_layout(template="plotly_dark")
     return fig
 
@@ -911,10 +932,20 @@ def avg_selling_price(radio_value,days_prev,data):
         
     
     # df_copy["Date"]=df_copy["Date"].dt.strftime('%d/%b/%y') 
-    try:    
-        fig = px.line(df_copy, y=df_copy["avg_selling_price"], x=df_copy["Date"],title="Average_selling_price",markers=True)
+    # try:    
+    #     fig = px.line(df_copy, y=df_copy["avg_selling_price"], x=df_copy["Date"],title="Average_selling_price",markers=True)
+    # except:
+    #     fig = px.line(df_copy, y=df_copy["avg_selling_price"], x=df_copy["Date"],title="Average_selling_price",markers=True)
+    
+    fig = go.Figure()
+    try:
+        fig.add_trace(go.Scatter(x=df_copy["Date"], y=df_copy["avg_selling_price"],
+                            mode='lines',
+                            name='products_per_unq_customers'))
     except:
-        fig = px.line(df_copy, y=df_copy["avg_selling_price"], x=df_copy["Date"],title="Average_selling_price",markers=True)
+        fig.add_trace(go.Scatter(x=df_copy["Date"], y=df_copy["avg_selling_price"],
+                            mode='lines',
+                            name='products_per_unq_customers'))
     fig=fig.update_layout(template="plotly_dark")
     
     return fig
